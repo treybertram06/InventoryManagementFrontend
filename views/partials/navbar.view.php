@@ -29,11 +29,11 @@
 
             <div class="flex items-center gap-4">
                 <div class="sm:flex sm:gap-4">
-                    <a class="block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover" href="#">
+                    <a class="block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover" href="/login">
                         Login
                     </a>
 
-                    <a class="hidden rounded-md bg-surface-muted px-5 py-2.5 text-sm font-medium text-primary transition hover:text-primary-hover sm:block dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75" href="#">
+                    <a class="hidden rounded-md bg-surface-muted px-5 py-2.5 text-sm font-medium text-primary transition hover:text-primary-hover sm:block dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75" href="/register">
                         Register
                     </a>
                 </div>

@@ -8,6 +8,8 @@ $routes = [
     '/' => 'controllers/home.php',
     '/inventory' => 'controllers/inventory.php',
     '/intake' => 'controllers/intake.php',
+    '/login' => 'controllers/login.php',
+    '/register' => 'controllers/register.php',
 ];
 
 $theme = 'mono';

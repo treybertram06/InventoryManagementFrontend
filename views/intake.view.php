@@ -4,7 +4,7 @@
 <body>
 <?php require "partials/navbar.view.php"; ?>
 
-Home page
+Intake page
 
 </body>
 </html>
