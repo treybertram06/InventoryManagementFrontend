@@ -1,6 +1,6 @@
 <header class="bg-surface dark:bg-surface-dark">
     <div class="mx-auto flex h-16 max-w-7xl items-center gap-8 px-4 sm:px-6 lg:px-8">
-        <a class="block text-primary dark:text-primary-light" href="#">
+        <a class="block text-primary dark:text-primary-light" href="/">
             <span class="sr-only">Home</span>
             <span class="block h-8 w-auto">
                 <?php
@@ -12,11 +12,6 @@
         <div class="flex flex-1 items-center justify-end md:justify-between">
             <nav aria-label="Global" class="hidden md:block">
                 <ul class="flex items-center gap-6 text-sm">
-                    <li>
-                        <a class="text-text-muted transition hover:text-text-muted/75 dark:text-white dark:hover:text-white/75" href="/">
-                            Home
-                        </a>
-                    </li>
 
                     <li>
                         <a class="text-text-muted transition hover:text-text-muted/75 dark:text-white dark:hover:text-white/75" href="/inventory">
