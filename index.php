@@ -6,7 +6,11 @@ require_once 'common.php';
 // ex: 'localhost/about' could return the page found at 'controllers/about.php'
 $routes = [
     '/' => 'controllers/home.php',
+    '/inventory' => 'controllers/inventory.php',
+    '/intake' => 'controllers/intake.php',
 ];
+
+$theme = 'mono';
 
 $uri = get_uri();
 $pageFound = false;
