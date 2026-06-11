@@ -3,6 +3,9 @@
 require_once 'include/common.php';
 require_once 'include/db.php';
 
+// DB object is created here so it's globally accessible
+$db = new Database();
+
 // An array of routes and their corresponding controllers,
 // ex: 'localhost/about' could return the page found at 'controllers/about.php'
 $routes = [
