@@ -23,12 +23,12 @@ create table if not exists User (
     Usr_username        varchar(64)     not null,
     Usr_email           varchar(128)    not null,
     Usr_passwordHash    varchar(255)    not null,
-    Usr_role            ENUM('admin','technician') not null default 'technician',
+    Usr_role            enum('admin','technician') not null default 'technician',
     Usr_createdAt       datetime        not null default current_timestamp,
 
     primary key (Usr_userId),
-    UNIQUE key uq_username (Usr_username),
-    UNIQUE key uq_email (Usr_email)
+    unique key uq_username (Usr_username),
+    unique key uq_email (Usr_email)
 );
 
 
@@ -41,7 +41,7 @@ create table if not exists Batch (
     Bat_notes           text,
 
     primary key (Bat_batchId),
-    FOREIGN key (Bat_userId) REFERENCES User (Usr_userId)
+    foreign key (Bat_userId) references User (Usr_userId)
 );
 
 
@@ -55,13 +55,13 @@ create table if not exists SupplierManifest (
     Man_supplierGrade       varchar(8),
     Man_hasIssues           boolean,
     Man_issueDescription    text,
-    Man_supplierValue       DECIMAL(8,2),
-    Man_revisionPrice       DECIMAL(8,2),
-    Man_batteryHealth       DECIMAL(5,1),
+    Man_supplierValue       decimal(8,2),
+    Man_revisionPrice       decimal(8,2),
+    Man_batteryHealth       decimal(5,1),
 
     primary key (Man_manifestId),
-    UNIQUE key uq_manifest_serial (Man_batchId, Man_serialNumber),
-    FOREIGN key (Man_batchId) REFERENCES Batch (Bat_batchId)
+    unique key uq_manifest_serial (Man_batchId, Man_serialNumber),
+    foreign key (Man_batchId) references Batch (Bat_batchId)
 );
 
 
@@ -76,7 +76,7 @@ create table if not exists Device (
     Dev_imei                varchar(20),
     Dev_wifiMac             varchar(17),
     Dev_bluetoothMac        varchar(17),
-    Dev_storageGb           DECIMAL(6,2),
+    Dev_storageGb           decimal(6,2),
     Dev_batteryOriginal     boolean,
     Dev_screenOriginal      boolean,
 
@@ -98,10 +98,10 @@ create table if not exists Device (
     Dev_intakeAt            datetime        not null default current_timestamp,
 
     primary key (Dev_serialNumber),
-    UNIQUE key uq_udid (Dev_udid),
-    FOREIGN key (Dev_productType)   REFERENCES DeviceModel (Mdl_productType),
-    FOREIGN key (Dev_batchId)       REFERENCES Batch (Bat_batchId),
-    FOREIGN key (Dev_manifestId)    REFERENCES SupplierManifest (Man_manifestId)
+    unique key uq_udid (Dev_udid),
+    foreign key (Dev_productType)   references DeviceModel (Mdl_productType),
+    foreign key (Dev_batchId)       references Batch (Bat_batchId),
+    foreign key (Dev_manifestId)    references SupplierManifest (Man_manifestId)
 );
 
 
@@ -115,31 +115,31 @@ create table if not exists DiagnosticSession (
     Ses_basebandVersion         varchar(32),
 
     -- Battery measurements at time of test
-    Ses_batteryPct              TINYINT UNSIGNED,
-    Ses_batteryHealthPct        DECIMAL(5,1),
-    Ses_batteryCycles           SMALLINT UNSIGNED,
-    Ses_batteryTempC            DECIMAL(4,1),
-    Ses_batteryImpedanceMohm    int UNSIGNED,
+    Ses_batteryPct              tinyint unsigned, -- uint8_t equivalent
+    Ses_batteryHealthPct        decimal(5,1),
+    Ses_batteryCycles           smallint unsigned, -- uint16_t equivalent
+    Ses_batteryTempC            decimal(4,1),
+    Ses_batteryImpedanceMohm    int unsigned,
     Ses_batterySerial           varchar(32),
     Ses_isCharging              boolean,
 
     -- Storage at time of test
-    Ses_dataCapacityGb          DECIMAL(6,2),
-    Ses_dataAvailableGb         DECIMAL(6,2),
+    Ses_dataCapacityGb          decimal(6,2),
+    Ses_dataAvailableGb         decimal(6,2),
 
     -- Result summary
-    Ses_countPass               SMALLINT UNSIGNED   not null default 0,
-    Ses_countFail               SMALLINT UNSIGNED   not null default 0,
-    Ses_countNa                 SMALLINT UNSIGNED   not null default 0,
-    Ses_countPending            SMALLINT UNSIGNED   not null default 0,
+    Ses_countPass               smallint unsigned   not null default 0,
+    Ses_countFail               smallint unsigned   not null default 0,
+    Ses_countNa                 smallint unsigned   not null default 0,
+    Ses_countPending            smallint unsigned   not null default 0,
 
     Ses_startedAt               datetime            not null,
     Ses_endedAt                 datetime,
-    Ses_elapsedSeconds          SMALLINT UNSIGNED,
+    Ses_elapsedSeconds          smallint unsigned,
 
     primary key (Ses_sessionId),
-    FOREIGN key (Ses_serialNumber)  REFERENCES Device (Dev_serialNumber),
-    FOREIGN key (Ses_userId)        REFERENCES User (Usr_userId)
+    foreign key (Ses_serialNumber)  references Device (Dev_serialNumber),
+    foreign key (Ses_userId)        references User (Usr_userId)
 );
 
 
@@ -150,12 +150,12 @@ create table if not exists TestResult (
     Tst_testId      varchar(32)     not null,
     Tst_testLabel   varchar(64),
     Tst_testGroup   varchar(32),
-    Tst_status      ENUM('pass','fail','na','pending','skipped')  not null,
-    Tst_source      ENUM('syslog','manual')                       not null default 'syslog',
+    Tst_status      enum('pass','fail','na','pending','skipped')  not null,
+    Tst_source      enum('syslog','manual')                       not null default 'syslog',
 
     primary key (Tst_resultId),
-    UNIQUE key uq_session_test (Tst_sessionId, Tst_testId),
-    FOREIGN key (Tst_sessionId) REFERENCES DiagnosticSession (Ses_sessionId)
+    unique key uq_session_test (Tst_sessionId, Tst_testId),
+    foreign key (Tst_sessionId) references DiagnosticSession (Ses_sessionId)
 );
 
 
@@ -166,20 +166,20 @@ create table if not exists TestResult (
 create table if not exists InventoryItem (
     Inv_serialNumber        varchar(32)     not null,
 
-    Inv_grade               ENUM('A','B','C','D','Parts','Scrap') not null default 'C',
+    Inv_grade               enum('A','B','C','D','Parts','Scrap') not null default 'C',
     Inv_conditionNotes      text,
     Inv_repairsNeededDone   text,
 
-    Inv_costPaid            DECIMAL(8,2),
-    Inv_repairCost          DECIMAL(8,2)    not null default 0.00,
-    Inv_b2bFloorPrice       DECIMAL(8,2),
-    Inv_b2cFloorPrice       DECIMAL(8,2),
+    Inv_costPaid            decimal(8,2),
+    Inv_repairCost          decimal(8,2)    not null default 0.00,
+    Inv_b2bFloorPrice       decimal(8,2),
+    Inv_b2cFloorPrice       decimal(8,2),
 
-    Inv_status              ENUM('in_stock','listed','reserved','sold','returned','scrapped') not null default 'in_stock',
+    Inv_status              enum('in_stock','listed','reserved','sold','returned','scrapped') not null default 'in_stock',
     Inv_listedAt            datetime,
     Inv_reservedAt          datetime,
     Inv_soldAt              datetime,
-    Inv_salePrice           DECIMAL(8,2),
+    Inv_salePrice           decimal(8,2),
     Inv_saleChannel         varchar(64),
     Inv_buyerInfo           varchar(256),
 
@@ -189,18 +189,18 @@ create table if not exists InventoryItem (
     Inv_updatedAt           datetime        not null default current_timestamp on update current_timestamp,
 
     primary key (Inv_serialNumber),
-    FOREIGN key (Inv_serialNumber)          REFERENCES Device (Dev_serialNumber),
-    FOREIGN key (Inv_canonicalSessionId)    REFERENCES DiagnosticSession (Ses_sessionId)
+    foreign key (Inv_serialNumber)          references Device (Dev_serialNumber),
+    foreign key (Inv_canonicalSessionId)    references DiagnosticSession (Ses_sessionId)
 );
 
 
 -- =============================================================================
--- Indexes
+-- indexes
 -- =============================================================================
 
-create INDEX idx_session_serial    ON DiagnosticSession (Ses_serialNumber);
-create INDEX idx_inventory_status  ON InventoryItem (Inv_status);
-create INDEX idx_inventory_grade   ON InventoryItem (Inv_grade);
-create INDEX idx_device_batch      ON Device (Dev_batchId);
-create INDEX idx_result_test_id    ON TestResult (Tst_testId, Tst_status);
-create INDEX idx_manifest_serial   ON SupplierManifest (Man_serialNumber);
+create index idx_session_serial    on DiagnosticSession (Ses_serialNumber);
+create index idx_inventory_status  on InventoryItem (Inv_status);
+create index idx_inventory_grade   on InventoryItem (Inv_grade);
+create index idx_device_batch      on Device (Dev_batchId);
+create index idx_result_test_id    on TestResult (Tst_testId, Tst_status);
+create index idx_manifest_serial   on SupplierManifest (Man_serialNumber);
