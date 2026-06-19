@@ -4,7 +4,7 @@
 <body>
 <?php require "partials/navbar.view.php"; ?>
 
-Login page
+<?php require "partials/loginForm.view.php"; ?>
 
 </body>
 </html>
