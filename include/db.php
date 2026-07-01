@@ -4,11 +4,11 @@ require_once 'include/common.php';
 require_once 'models/user.php';
 
 class Database {
-    public $host = "localhost";
-    public $dbName = "PhoneInventory";
-    public $user = "root";
-    public $pass = "password";
-    public $charset = "utf8mb4";
+    public $host;
+    public $dbName;
+    public $user;
+    public $pass;
+    public $charset;
     private $options = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -18,11 +18,13 @@ class Database {
     private $dsn;
 
     public function __construct($host = null, $dbName = null, $user = null, $pass = null, $charset = null) {
-        $this->host = $host ?? $this->host;
-        $this->dbName = $dbName ?? $this->dbName;
-        $this->user = $user ?? $this->user;
-        $this->pass = $pass ?? $this->pass;
-        $this->charset = $charset ?? $this->charset;
+        $config = require __DIR__ . '/config.php';
+
+        $this->host = $host ?? $config['db_host'];
+        $this->dbName = $dbName ?? $config['db_name'];
+        $this->user = $user ?? $config['db_user'];
+        $this->pass = $pass ?? $config['db_pass'];
+        $this->charset = $charset ?? $config['db_charset'];
 
         $this->dsn = "mysql:host=$this->host; dbname=$this->dbName; charset=$this->charset;";
 
