@@ -1,0 +1,126 @@
+<?php
+
+require_once 'core/common.php';
+require_once 'models/user.php';
+require_once 'models/device.php';
+
+class Database {
+    public $host;
+    public $dbName;
+    public $user;
+    public $pass;
+    public $charset;
+    private $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ];
+    private $pdo;
+    private $dsn;
+
+    public function __construct($host = null, $dbName = null, $user = null, $pass = null, $charset = null) {
+        try {
+            $config = require __DIR__ . '/config.php';
+        } catch (\Throwable $e) {
+            log_error("Error reading config file: " . $e->getMessage() . "\n    Please check your config.php file - see config.example.php.");
+            $config = require __DIR__ . '/config.example.php';
+        }
+
+        $this->host = $host ?? $config['db_host'];
+        $this->dbName = $dbName ?? $config['db_name'];
+        $this->user = $user ?? $config['db_user'];
+        $this->pass = $pass ?? $config['db_pass'];
+        $this->charset = $charset ?? $config['db_charset'];
+
+        $this->dsn = "mysql:host=$this->host; dbname=$this->dbName; charset=$this->charset;";
+
+        try {
+            $this->pdo = new PDO($this->dsn, $this->user, $this->pass, $this->options);
+            log_info("Connected to database successfully!");
+        } catch (PDOException $e) {
+            log_error("Connection failed: \n    DSN: " . $this->dsn . "\n    Error: " . $e->getMessage());
+        }
+    }
+
+    public function get_pdo() {
+        return $this->pdo;
+    }
+
+    // provide getters that will handle db queries and return results as PHP objects
+
+    // --- User ---
+    public function get_all_users(): array | null {
+        $stmt = $this->pdo->prepare("SELECT * FROM User");
+        $stmt->execute();
+        $data = $stmt->fetchAll();
+
+        $users = [];
+        if (!$data) return null;
+        foreach ($data as $row) {
+            $users[] = User::from_row($row);
+        }
+        return $users;
+    }
+    public function get_user_by_id($id): User | null {
+        $stmt = $this->pdo->prepare("SELECT * FROM User WHERE id = ?");
+        $stmt->execute([$id]);
+        $data = $stmt->fetch();
+
+        if (!$data) {
+            return null;
+        } else {
+            return new User(
+                $data['Usr_userId'],
+                $data['Usr_username'],
+                $data['Usr_email'],
+                UserRole::from($data['Usr_role'])
+            );
+        }
+    }
+
+    // --- Device ---
+    private const DEVICE_REPORT_SELECT = "
+        SELECT
+            d.serial_number, d.imei, d.product_type, dm.friendly_name, d.model_number,
+            d.color, d.region_code, d.storage_gb,
+            d.battery_original, d.screen_original, d.previously_repaired, d.known_issues,
+            i.grade, i.condition_notes, i.repairs_needed_done, i.status,
+            i.cost_paid, i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
+            i.sale_price, i.sale_channel,
+            b.batch_number, b.technician, d.intake_at, b.received_at,
+            ds.battery_health_pct, ds.count_pass, ds.count_fail, ds.count_na, ds.count_pending
+        FROM device d
+        JOIN device_model dm      ON dm.product_type = d.product_type
+        JOIN batch b               ON b.id = d.batch_id
+        LEFT JOIN inventory_item i ON i.serial_number = d.serial_number
+        LEFT JOIN diagnostic_session ds ON ds.id = (
+            SELECT ds2.id FROM diagnostic_session ds2
+            WHERE ds2.serial_number = d.serial_number
+            ORDER BY ds2.started_at DESC LIMIT 1
+        )
+    ";
+
+    public function get_all_devices(): array | null {
+        $stmt = $this->pdo->prepare(self::DEVICE_REPORT_SELECT);
+        $stmt->execute();
+        $data = $stmt->fetchAll();
+
+        if (!$data) return null;
+        return array_map(fn($row) => Device::from_row($row), $data);
+    }
+
+    public function get_device_by_serial($serialNumber): Device | null {
+        $stmt = $this->pdo->prepare(self::DEVICE_REPORT_SELECT . " WHERE d.serial_number = ?");
+        $stmt->execute([$serialNumber]);
+        $data = $stmt->fetch();
+
+        if (!$data) return null;
+        return Device::from_row($data);
+    }
+
+}
+
+
+
+
+

@@ -18,6 +18,15 @@ class User {
         $this->role = $role;
     }
 
+    public static function from_row(array $row): User {
+        return new User(
+            $row['id'],
+            $row['username'],
+            $row['email'],
+            UserRole::from($row['role'])
+        );
+    }
+
     public function get_name(): string {
         return $this->username;
     }

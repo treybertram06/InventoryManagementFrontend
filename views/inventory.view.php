@@ -7,9 +7,9 @@
 <?php
 /** @var Database $db */ // Makes my IDE happy
 
-if ($users = $db->get_all_users()) {
-    foreach ($users as $user) {
-        echo $user->get_name() . '<br>';
+if ($devices = $db->get_all_devices()) {
+    foreach ($devices as $device) {
+        echo $device->friendlyName . '<br>';
     }
 } else {
     echo '<div class="flex min-h-[calc(100vh-4rem)] items-center justify-center">';

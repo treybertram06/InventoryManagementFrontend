@@ -5,7 +5,7 @@
     <style type="text/tailwindcss">
         <?php
 
-        $theme = $theme ?? 'teal';
+        $theme = CONFIG['theme'] ?? 'teal';
         switch ($theme) {
             case 'indigo':
                 $colors = '--color-primary: #4f46e5; --color-primary-hover: #4338ca; --color-primary-light: #a5b4fc; --color-surface-dark: #1e1b4b; --color-surface-muted-dark: #2e2a6e;';

@@ -9,4 +9,6 @@ return [
     'db_user' => 'root',
     'db_pass' => 'password',
     'db_charset' => 'utf8mb4',
+
+    'theme' => 'mono',
 ];

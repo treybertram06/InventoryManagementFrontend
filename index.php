@@ -1,29 +1,13 @@
 <?php
 
-require_once 'include/common.php';
-require_once 'include/db.php';
+const BASE_PATH = __DIR__ . '/';
+const BASE_URL = 'http://localhost/';
+define('CONFIG', file_exists(BASE_PATH . 'core/config.php')
+    ? require BASE_PATH . 'core/config.php' : require BASE_PATH . 'core/config.example.php');
+require_once BASE_PATH . 'core/common.php';
+require_once BASE_PATH . 'core/db.php';
 
 // DB object is created here so it's globally accessible
 $db = new Database();
 
-// An array of routes and their corresponding controllers,
-// ex: 'localhost/about' could return the page found at 'controllers/about.php'
-$routes = [
-    '/' => 'controllers/home.php',
-    '/inventory' => 'controllers/inventory.php',
-    '/intake' => 'controllers/intake.php',
-    '/login' => 'controllers/login.php',
-    '/register' => 'controllers/register.php',
-];
-
-$theme = 'mono';
-
-$uri = get_uri();
-$pageFound = false;
-
-if (isset($routes[$uri])) {
-    require $routes[$uri];
-} else {
-    http_response_code(404);
-    require "views/404.view.php";
-}
+require_once BASE_PATH . 'core/router.php';
