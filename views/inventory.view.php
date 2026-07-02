@@ -8,9 +8,9 @@
 /** @var Database $db */ // Makes my IDE happy
 
 if ($devices = $db->get_all_devices()) {
-    foreach ($devices as $device) {
-        echo $device->friendlyName . '<br>';
-    }
+    echo '<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">';
+        require "partials/itemTable.view.php";
+    echo '</div>';
 } else {
     echo '<div class="flex min-h-[calc(100vh-4rem)] items-center justify-center">';
         require "partials/noDataFound.view.php";

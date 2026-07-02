@@ -91,7 +91,8 @@ class Database {
             d.color, d.region_code, d.storage_gb,
             d.battery_original, d.screen_original, d.previously_repaired, d.known_issues,
             i.grade, i.condition_notes, i.repairs_needed_done, i.status,
-            i.cost_paid, i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
+            COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
+            i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
             i.sale_price, i.sale_channel,
             b.batch_number, b.technician, d.intake_at, b.received_at,
             ds.battery_health_pct, ds.count_pass, ds.count_fail, ds.count_na, ds.count_pending
@@ -99,11 +100,8 @@ class Database {
         JOIN device_model dm      ON dm.product_type = d.product_type
         JOIN batch b               ON b.id = d.batch_id
         LEFT JOIN inventory_item i ON i.serial_number = d.serial_number
-        LEFT JOIN diagnostic_session ds ON ds.id = (
-            SELECT ds2.id FROM diagnostic_session ds2
-            WHERE ds2.serial_number = d.serial_number
-            ORDER BY ds2.started_at DESC LIMIT 1
-        )
+        LEFT JOIN diagnostic_session ds ON ds.id = i.canonical_session_id
+        LEFT JOIN supplier_manifest_item smi ON smi.id = d.supplier_manifest_item_id
     ";
 
     public function get_all_devices(): array | null {
