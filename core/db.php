@@ -1,8 +1,14 @@
 <?php
+namespace Core;
 
 require_once 'core/common.php';
 require_once 'models/user.php';
 require_once 'models/device.php';
+
+use User;
+use Device;
+use PDO;
+use UserRole;
 
 class Database {
     public $host;
@@ -22,7 +28,7 @@ class Database {
         try {
             $config = require __DIR__ . '/config.php';
         } catch (\Throwable $e) {
-            log_error("Error reading config file: " . $e->getMessage() . "\n    Please check your config.php file - see config.example.php.");
+            Common::log_error("Error reading config file: " . $e->getMessage() . "\n    Please check your config.php file - see config.example.php.");
             $config = require __DIR__ . '/config.example.php';
         }
 
@@ -36,9 +42,9 @@ class Database {
 
         try {
             $this->pdo = new PDO($this->dsn, $this->user, $this->pass, $this->options);
-            log_info("Connected to database successfully!");
-        } catch (PDOException $e) {
-            log_error("Connection failed: \n    DSN: " . $this->dsn . "\n    Error: " . $e->getMessage());
+            Common::log_info("Connected to database successfully!");
+        } catch (\PDOException $e) {
+            Common::log_error("Connection failed: \n    DSN: " . $this->dsn . "\n    Error: " . $e->getMessage());
         }
     }
 

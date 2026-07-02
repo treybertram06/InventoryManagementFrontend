@@ -4,7 +4,7 @@
             <span class="sr-only">Home</span>
             <span class="block h-8 w-auto">
                 <?php
-                    draw_svg(file_get_contents(__DIR__ . '/../../public/icons/warehouse-solid-full.svg'), 8);
+                    Core\Common::draw_svg(file_get_contents(__DIR__ . '/../../public/icons/warehouse-solid-full.svg'), 8);
                 ?>
             </span>
         </a>
