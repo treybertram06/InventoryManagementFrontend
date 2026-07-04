@@ -8,7 +8,7 @@
 /** @var Database $db */ // Makes my IDE happy
 
 if ($devices = $db->get_all_devices()) {
-    echo '<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">';
+    echo '<div class="mx-auto max-w-[96rem] px-4 py-4 sm:px-6 lg:px-8">';
         require "partials/itemTable.view.php";
     echo '</div>';
 } else {
