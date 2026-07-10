@@ -15,6 +15,22 @@ CREATE TABLE IF NOT EXISTS device_model ( -- Lazily populated when a new device 
     PRIMARY KEY (product_type)
 );
 
+CREATE TABLE IF NOT EXISTS user (
+    id              INT             NOT NULL AUTO_INCREMENT,
+    username        VARCHAR(64)     NOT NULL,
+    email           VARCHAR(256)    NOT NULL,
+    password_hash   VARCHAR(255)    NOT NULL, -- store via password_hash(), never plaintext
+    role            ENUM('admin','technician') NOT NULL DEFAULT 'technician',
+
+    created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                             ON UPDATE CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_user_username (username),
+    UNIQUE KEY uq_user_email (email)
+);
+
 CREATE TABLE IF NOT EXISTS batch (
     id                  INT             NOT NULL AUTO_INCREMENT,
     batch_number        VARCHAR(64),                    -- NULL if not provided at intake

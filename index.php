@@ -5,6 +5,11 @@ function base_path($path = '') {
     return BASE_PATH . $path;
 }
 
+function view(string $path, $attributes=[]){
+    extract($attributes);
+    require base_path("views/{$path}");
+}
+
 const BASE_URL = 'http://localhost/';
 define('CONFIG', file_exists(BASE_PATH . 'core/config.php')
     ? require BASE_PATH . 'core/config.php' : require BASE_PATH . 'core/config.example.php');

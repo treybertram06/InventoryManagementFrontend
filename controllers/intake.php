@@ -1,3 +1,3 @@
 <?php
 
-require_once 'views/intake.view.php';
+view('intake.view.php');
