@@ -1,14 +1,14 @@
 <?php
 namespace Core;
 
-require_once 'core/common.php';
-require_once 'models/user.php';
-require_once 'models/device.php';
+//require_once 'core/common.php';
+//require_once 'models/user.php';
+//require_once 'models/device.php';
 
-use User;
-use Device;
+use Models\User;
+use Models\Device;
 use PDO;
-use UserRole;
+use Models\UserRole;
 
 class Database {
     public $host;

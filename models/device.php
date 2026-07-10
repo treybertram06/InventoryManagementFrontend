@@ -1,4 +1,7 @@
 <?php
+namespace Models;
+
+use DateTime;
 
 class Device {
     // Identity & specs

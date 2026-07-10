@@ -10,6 +10,13 @@ function view(string $path, $attributes=[]){
     require base_path("views/{$path}");
 }
 
+spl_autoload_register(
+    function($class){
+        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class); // Core/Database
+        require base_path("{$class}.php");
+    }
+);
+
 const BASE_URL = 'http://localhost/';
 define('CONFIG', file_exists(BASE_PATH . 'core/config.php')
     ? require BASE_PATH . 'core/config.php' : require BASE_PATH . 'core/config.example.php');

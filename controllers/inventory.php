@@ -1,3 +1,3 @@
 <?php
 
-view('inventory.view.php');
+view('inventory.view.php', ['db' => $db]);
