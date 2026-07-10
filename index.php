@@ -12,7 +12,13 @@ require_once BASE_PATH . 'core/common.php';
 require_once BASE_PATH . 'core/db.php';
 
 // DB object is created here so it's globally accessible
-$db = new Core\Database();
+try {
+    $db = new Core\Database();
+} catch (\RuntimeException $e) {
+    http_response_code(503);
+    echo "Service unavailable: could not connect to the database.";
+    exit;
+}
 
 $router = require base_path('routes.php');
 $router->dispatch(Core\Common::get_uri(), $_SERVER['REQUEST_METHOD'], ['db' => $db]);
