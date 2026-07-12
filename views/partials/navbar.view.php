@@ -28,15 +28,41 @@
             </nav>
 
             <div class="flex items-center gap-4">
-                <div class="sm:flex sm:gap-4">
-                    <a class="block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover" href="/login">
-                        Login
-                    </a>
+                <?php
+                    global $db;
+                    $currentUser = Core\Common::current_user($db);
+                ?>
+                <?php if ($currentUser): ?>
+                    <details class="relative">
+                        <summary class="flex cursor-pointer list-none items-center gap-2 rounded-md bg-surface-muted px-4 py-2.5 text-sm font-medium text-text transition hover:bg-surface-muted/75 dark:bg-surface-muted-dark dark:text-white [&::-webkit-details-marker]:hidden">
+                            <?= htmlspecialchars($currentUser->username) ?>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                            </svg>
+                        </summary>
 
-                    <a class="hidden rounded-md bg-surface-muted px-5 py-2.5 text-sm font-medium text-primary transition hover:text-primary-hover sm:block dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75" href="/register">
-                        Register
-                    </a>
-                </div>
+                        <div class="absolute right-0 z-10 mt-2 w-40 rounded-md border border-text-muted/20 bg-surface p-1 shadow-lg dark:bg-surface-dark">
+                            <form method="POST" action="/logout">
+                                <button
+                                    type="submit"
+                                    class="block w-full rounded-md px-3 py-2 text-left text-sm text-text-muted transition hover:bg-surface-muted dark:text-white/70 dark:hover:bg-surface-muted-dark"
+                                >
+                                    Log out
+                                </button>
+                            </form>
+                        </div>
+                    </details>
+                <?php else: ?>
+                    <div class="sm:flex sm:gap-4">
+                        <a class="block rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover" href="/login">
+                            Login
+                        </a>
+
+                        <a class="hidden rounded-md bg-surface-muted px-5 py-2.5 text-sm font-medium text-primary transition hover:text-primary-hover sm:block dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75" href="/register">
+                            Register
+                        </a>
+                    </div>
+                <?php endif; ?>
 
                 <button class="block rounded-sm bg-surface-muted p-2.5 text-text-muted transition hover:text-text-muted/75 md:hidden dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75">
                     <span class="sr-only">Toggle menu</span>

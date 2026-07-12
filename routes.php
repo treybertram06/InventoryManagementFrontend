@@ -14,5 +14,7 @@ $router->post('/login', 'controllers/login.php');
 $router->get('/register', 'controllers/register.php');
 $router->post('/register', 'controllers/register.php');
 
+$router->post('/logout', 'controllers/logout.php');
+
 
 return $router;
