@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 const BASE_PATH = __DIR__ . '/';
 function base_path($path = '') {

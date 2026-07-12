@@ -103,6 +103,16 @@ class Database {
         return (bool) $stmt->fetch();
     }
 
+    public function get_login_credentials($identifier, bool $isEmail = true): ?array {
+        $stmt = $isEmail ?
+            $this->pdo->prepare("SELECT id, password_hash FROM user WHERE email = ?") :
+            $this->pdo->prepare("SELECT id, password_hash FROM user WHERE username = ?");
+
+        $stmt->execute([$identifier]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
     // --- Device ---
     private const DEVICE_REPORT_SELECT = "
         SELECT

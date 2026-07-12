@@ -1,11 +1,21 @@
 <?php
 namespace Core;
 
+use Models\User;
+
 class Common {
     // If this gets too large, it can be split up into more specific groups
     public static function get_uri()
     {
         return $_SERVER['REQUEST_URI'];
+    }
+
+    public static function current_user(Database $db): ?User
+    {
+        if (!isset($_SESSION['user_id'])) {
+            return null;
+        }
+        return $db->get_user_by_id($_SESSION['user_id']);
     }
 
     public static function uri_is($value)
