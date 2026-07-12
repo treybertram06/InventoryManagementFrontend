@@ -70,7 +70,7 @@ class Database {
         return $users;
     }
     public function get_user_by_id($id): User | null {
-        $stmt = $this->pdo->prepare("SELECT * FROM User WHERE id = ?");
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE id = ?");
         $stmt->execute([$id]);
         $data = $stmt->fetch();
 
@@ -78,12 +78,29 @@ class Database {
             return null;
         } else {
             return new User(
-                $data['Usr_userId'],
-                $data['Usr_username'],
-                $data['Usr_email'],
-                UserRole::from($data['Usr_role'])
+                $data['id'],
+                $data['username'],
+                $data['email'],
+                UserRole::from($data['role'])
             );
         }
+    }
+
+    public function create_user($username, $email, $password, $role = 'technician'): bool {
+        $stmt = $this->pdo->prepare("INSERT INTO user (username, email, password_hash, role) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$username, $email, $password, $role]);
+    }
+
+    public function does_user_exist($username): bool {
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE username = ?");
+        $stmt->execute([$username]);
+        return (bool) $stmt->fetch();
+    }
+
+    public function does_user_exist_by_email($email): bool {
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE email = ?");
+        $stmt->execute([$email]);
+        return (bool) $stmt->fetch();
     }
 
     // --- Device ---

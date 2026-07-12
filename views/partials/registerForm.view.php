@@ -3,7 +3,17 @@
         <h1 class="text-2xl font-semibold text-text dark:text-white">Create Account</h1>
         <p class="mt-2 text-sm text-text-muted dark:text-white/70">Enter your details to create a new account</p>
 
-        <form action="#" class="mt-6 space-y-4">
+        <?php if (!empty($errors)): ?>
+            <div class="mt-4 rounded-md border border-red-500/30 bg-red-500/10 p-3">
+                <ul class="list-inside list-disc text-sm text-red-600 dark:text-red-400">
+                    <?php foreach ($errors as $error): ?>
+                        <li><?= htmlspecialchars($error) ?></li>
+                    <?php endforeach; ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+
+        <form method="POST" action="/register" class="mt-6 space-y-4">
             <div>
                 <label for="register-username" class="mb-1.5 block text-sm font-medium text-text dark:text-white">Username</label>
                 <input
@@ -11,6 +21,7 @@
                     type="text"
                     name="username"
                     placeholder="jsmith"
+                    value="<?= htmlspecialchars($username ?? '') ?>"
                     class="w-full rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white"
                 />
             </div>
@@ -22,6 +33,7 @@
                     type="email"
                     name="email"
                     placeholder="name@mail.com"
+                    value="<?= htmlspecialchars($email ?? '') ?>"
                     class="w-full rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white"
                 />
             </div>
@@ -49,7 +61,7 @@
             </div>
 
             <button
-                type="button"
+                type="submit"
                 class="w-full rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover"
             >
                 Create Account
