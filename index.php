@@ -13,8 +13,22 @@ function view(string $path, $attributes=[]){
 
 spl_autoload_register(
     function($class){
-        $class = str_replace('\\', DIRECTORY_SEPARATOR, $class); // Core/Database
-        require base_path("{$class}.php");
+        $segments = explode('\\', $class); // Transforms '\' separated namespaces into an array of segments: Core\Validator -> ['Core', 'Validator']
+        $segments[count($segments) - 1] .= '.php'; // Append .php onto the last segment
+
+        $path = rtrim(BASE_PATH, '/'); // Remove trailing slash
+        foreach ($segments as $segment) {
+            $match = $segment; // Set default for fallback
+            foreach (scandir($path) as $entry) {
+                if (strcasecmp($entry, $segment) === 0) { // Case-insensitive string comparison of each entry in the directory
+                    $match = $entry; // If the file/folder is found, set it as the match
+                    break;
+                }
+            }
+            $path .= DIRECTORY_SEPARATOR . $match; // Build the path by appending matching segments
+        }
+
+        require $path;
     }
 );
 
