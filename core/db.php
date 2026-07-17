@@ -151,6 +151,66 @@ class Database {
         return Device::from_row($data);
     }
 
+    public function does_device_exist($serialNumber): bool {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM device WHERE serial_number = ?");
+        $stmt->execute([$serialNumber]);
+        return (bool) $stmt->fetch();
+    }
+
+    public function does_device_model_exist($productType): bool {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM device_model WHERE product_type = ?");
+        $stmt->execute([$productType]);
+        return (bool) $stmt->fetch();
+    }
+
+    public function create_device_model($productType, $friendlyName): bool {
+        $stmt = $this->pdo->prepare("INSERT INTO device_model (product_type, friendly_name) VALUES (?, ?)");
+        return $stmt->execute([$productType, $friendlyName]);
+    }
+
+    // --- Inventory Item ---
+    public function create_inventory_item($serialNumber, $grade): bool {
+        $stmt = $this->pdo->prepare("INSERT INTO inventory_item (serial_number, grade) VALUES (?, ?)");
+        return $stmt->execute([$serialNumber, $grade]);
+    }
+
+    public function create_device(array $data): bool {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO device (
+                serial_number, product_type, model_number, color, region_code, storage_gb,
+                imei, imei2, udid, meid, iccid, wifi_mac, bluetooth_mac, baseband_serial,
+                hardware_model,
+                battery_original, screen_original, previously_repaired, known_issues,
+                activation_state, icloud_lock_status, find_my_enabled, passcode_protected, mdm_enrolled,
+                can_test, device_password,
+                batch_id, supplier_manifest_item_id
+            ) VALUES (
+                :serial_number, :product_type, :model_number, :color, :region_code, :storage_gb,
+                :imei, :imei2, :udid, :meid, :iccid, :wifi_mac, :bluetooth_mac, :baseband_serial,
+                :hardware_model,
+                :battery_original, :screen_original, :previously_repaired, :known_issues,
+                :activation_state, :icloud_lock_status, :find_my_enabled, :passcode_protected, :mdm_enrolled,
+                :can_test, :device_password,
+                :batch_id, :supplier_manifest_item_id
+            )
+        ");
+        return $stmt->execute($data);
+    }
+
+    // --- Batch ---
+    public function get_batch_id_by_number($batchNumber): ?int {
+        $stmt = $this->pdo->prepare("SELECT id FROM batch WHERE batch_number = ?");
+        $stmt->execute([$batchNumber]);
+        $row = $stmt->fetch();
+        return $row ? (int)$row['id'] : null;
+    }
+
+    public function create_batch($batchNumber): int {
+        $stmt = $this->pdo->prepare("INSERT INTO batch (batch_number) VALUES (?)");
+        $stmt->execute([$batchNumber]);
+        return (int) $this->pdo->lastInsertId();
+    }
+
 }
 
 

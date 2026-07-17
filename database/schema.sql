@@ -79,8 +79,6 @@ CREATE TABLE IF NOT EXISTS device (
     iccid                       VARCHAR(22),
     baseband_serial             VARCHAR(32),
     hardware_model              VARCHAR(16),
-    chip_id                     VARCHAR(16),
-    cpu_architecture            VARCHAR(16),
     storage_gb                  DECIMAL(6,2),
     battery_original            BOOLEAN,
     screen_original             BOOLEAN,
@@ -203,8 +201,6 @@ ALTER TABLE device ADD COLUMN meid             VARCHAR(20);
 ALTER TABLE device ADD COLUMN iccid            VARCHAR(22);
 ALTER TABLE device ADD COLUMN baseband_serial  VARCHAR(32);
 ALTER TABLE device ADD COLUMN hardware_model   VARCHAR(16);
-ALTER TABLE device ADD COLUMN chip_id          VARCHAR(16);
-ALTER TABLE device ADD COLUMN cpu_architecture VARCHAR(16);
 
 ALTER TABLE supplier_manifest_item ADD COLUMN imei             VARCHAR(20);
 ALTER TABLE supplier_manifest_item ADD COLUMN supplier_item_id VARCHAR(64);

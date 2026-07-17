@@ -4,7 +4,7 @@
 <body class="min-h-screen bg-background text-text dark:bg-background-dark dark:text-white">
 <?php require "partials/navbar.view.php"; ?>
 
-Intake page
+<?php require "partials/intakeForm.view.php"; ?>
 
 </body>
 </html>
