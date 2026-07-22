@@ -211,6 +211,57 @@ class Database {
         return (int) $this->pdo->lastInsertId();
     }
 
+    // --- Diagnostics ---
+    public function get_device_model_capabilities($productType): ?array {
+        $stmt = $this->pdo->prepare("
+            SELECT has_home_button, has_face_id, has_action_button, has_camera_button, has_telephoto, has_lidar
+            FROM device_model WHERE product_type = ?
+        ");
+        $stmt->execute([$productType]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    public function create_diagnostic_session(array $data): int {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO diagnostic_session (
+                serial_number, technician, ios_version, build_version, baseband_version,
+                battery_pct, battery_health_pct, battery_cycles, battery_temp_c,
+                battery_impedance_mohm, battery_serial, is_charging,
+                data_capacity_gb, data_available_gb,
+                count_pass, count_fail, count_na, count_pending,
+                started_at, ended_at, elapsed_seconds
+            ) VALUES (
+                :serial_number, :technician, :ios_version, :build_version, :baseband_version,
+                :battery_pct, :battery_health_pct, :battery_cycles, :battery_temp_c,
+                :battery_impedance_mohm, :battery_serial, :is_charging,
+                :data_capacity_gb, :data_available_gb,
+                :count_pass, :count_fail, :count_na, :count_pending,
+                :started_at, :ended_at, :elapsed_seconds
+            )
+        ");
+        $stmt->execute($data);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function create_test_result(int $sessionId, string $testId, ?string $testLabel, ?string $testGroup, string $status, string $source = 'manual'): bool {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO test_result (session_id, test_id, test_label, test_group, status, source)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ");
+        return $stmt->execute([$sessionId, $testId, $testLabel, $testGroup, $status, $source]);
+    }
+
+    public function set_canonical_session($serialNumber, int $sessionId): bool {
+        $stmt = $this->pdo->prepare("UPDATE inventory_item SET canonical_session_id = ? WHERE serial_number = ?");
+        return $stmt->execute([$sessionId, $serialNumber]);
+    }
+
+    public function update_inventory_item_grade($serialNumber, $grade, ?string $conditionNotes): bool {
+        $stmt = $this->pdo->prepare("UPDATE inventory_item SET grade = ?, condition_notes = ? WHERE serial_number = ?");
+        return $stmt->execute([$grade, $conditionNotes, $serialNumber]);
+    }
+
 }
 
 

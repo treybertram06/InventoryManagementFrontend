@@ -64,6 +64,7 @@ $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 te
                     ['label' => 'Cost',               'type' => 'number'],
                     ['label' => 'Suggested Price',    'type' => 'number'],
                     ['label' => 'Batch',              'type' => 'text'],
+                    ['label' => 'Actions',            'type' => 'text'],
                 ];
                 ?>
                 <?php foreach ($columns as $column): ?>
@@ -104,6 +105,9 @@ $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 te
                     </td>
                     <td id="suggested-price-column" class="px-4 py-3 text-sm text-text dark:text-white">—</td>
                     <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->batchNumber) ?></td>
+                    <td class="px-4 py-3 text-sm">
+                        <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>" class="font-medium text-primary hover:underline dark:text-primary-light">Test</a>
+                    </td>
                 </tr>
             <?php endforeach; ?>
             </tbody>

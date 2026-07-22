@@ -7,7 +7,7 @@ class Common {
     // If this gets too large, it can be split up into more specific groups
     public static function get_uri()
     {
-        return $_SERVER['REQUEST_URI'];
+        return parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
     }
 
     public static function current_user(Database $db): ?User
