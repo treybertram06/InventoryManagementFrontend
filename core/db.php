@@ -262,6 +262,18 @@ class Database {
         return $stmt->execute([$grade, $conditionNotes, $serialNumber]);
     }
 
+    public function get_canonical_test_results($serialNumber): array {
+        $stmt = $this->pdo->prepare("
+            SELECT tr.test_id, tr.test_label, tr.test_group, tr.status
+            FROM inventory_item i
+            JOIN test_result tr ON tr.session_id = i.canonical_session_id
+            WHERE i.serial_number = ?
+            ORDER BY tr.test_group, tr.test_id
+        ");
+        $stmt->execute([$serialNumber]);
+        return $stmt->fetchAll() ?: [];
+    }
+
 }
 
 

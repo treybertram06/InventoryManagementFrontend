@@ -12,6 +12,8 @@ $router->post('/intake', 'controllers/intake.php');
 $router->get('/device-test', 'controllers/deviceTest.php');
 $router->post('/device-test', 'controllers/deviceTest.php');
 
+$router->get('/device', 'controllers/deviceView.php');
+
 $router->get('/login', 'controllers/login.php');
 $router->post('/login', 'controllers/login.php');
 
