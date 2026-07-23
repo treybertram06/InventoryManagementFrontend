@@ -17,7 +17,7 @@ $activeBadge = 'bg-primary/10 text-primary dark:bg-primary-light/10 dark:text-pr
 $inactiveBadge = 'bg-surface-muted text-text-muted dark:bg-surface-muted-dark dark:text-white/70';
 
 function nearest_pow_of_two($number) {
-    return 2 ** ceil(log($number, 2));
+    return 2 ** ceil(log($number ?? 0, 2));
 }
 
 $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white';
@@ -102,7 +102,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                     <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars((int)$device->batteryHealthPct . '%') ?></td>
                     <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->previouslyRepaired ? "Yes" : "No") ?></td>
                     <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->serialNumber) ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->imei) ?></td>
+                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->imei ?? '—') ?></td>
 
                     <td id="cost-column" class="px-4 py-3 text-sm text-text dark:text-white">
                         <?= $device->costPaid !== null ? '$' . number_format($device->costPaid, 2) : '—' ?>

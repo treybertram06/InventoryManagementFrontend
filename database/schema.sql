@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS inventory_item (
 
     status                  ENUM('in_stock','listed','reserved','sold','returned','scrapped')
                                             NOT NULL DEFAULT 'in_stock',
-    listed_at               DATETIME,
+    listed_aEt               DATETIME,
     reserved_at             DATETIME,
     sold_at                 DATETIME,
     sale_price              DECIMAL(8,2),
