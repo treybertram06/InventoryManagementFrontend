@@ -1,52 +1,78 @@
 <?php
 
-if (!Core\Common::current_user($db)) {
+const STORAGE_SIZES = [16, 32, 64, 128, 256, 512, 1024, 2048];
+
+function blank($value): bool {
+    return trim((string)($value ?? '')) === '';
+}
+
+function nullable_str($value): ?string {
+    return blank($value) ? null : $value;
+}
+
+$user = Core\Common::current_user($db);
+if (!$user) {
     header('Location: /login');
     exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| POST - Save Changes
-|--------------------------------------------------------------------------
-*/
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $db->update_device([
-        'serial_number' => $_POST['serial_number'],
-        'product_type' => $_POST['product_type'],
-        'model_number' => $_POST['model_number'],
-        'color' => $_POST['color'],
-        'region_code' => $_POST['region_code'],
-        'storage_gb' => $_POST['storage_gb'],
-        'known_issues' => $_POST['known_issues'],
-    ]);
-
-    header('Location: /device?serial=' . urlencode($_POST['serial_number']));
+if ($user->role !== Models\UserRole::Admin) {
+    header('Location: /inventory');
     exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| GET - Show Edit Form
-|--------------------------------------------------------------------------
-*/
+function handle_device_edit(Core\Database $db, Models\Device $device, array $models): void {
+    $values = $_POST;
+    $errors = [];
 
-$serial = $_GET['serial'] ?? '';
+    if (blank($values['product_type'] ?? null)) {
+        $errors[] = "Product type is required.";
+    } elseif (!$db->does_device_model_exist($values['product_type'])) {
+        $errors[] = "Unknown product type. New product types can only be added through device intake.";
+    }
 
-if (empty($serial)) {
+    $storageGb = $values['storage_gb'] ?? null;
+    if (blank($storageGb)) {
+        $errors[] = "Storage (GB) is required.";
+    } elseif (!in_array((int)$storageGb, STORAGE_SIZES, true) && (float)$storageGb !== (float)($device->storageGb ?? 0)) {
+        $errors[] = "Please select a valid storage size.";
+    }
+
+    if (!empty($errors)) {
+        view('deviceEdit.view.php', ['device' => $device, 'models' => $models, 'errors' => $errors, 'values' => $values]);
+        return;
+    }
+
+    $db->update_device([
+        'serial_number' => $device->serialNumber,
+        'product_type' => $values['product_type'],
+        'model_number' => nullable_str($values['model_number'] ?? null),
+        'color' => nullable_str($values['color'] ?? null),
+        'region_code' => nullable_str($values['region_code'] ?? null),
+        'storage_gb' => (float)$values['storage_gb'],
+        'known_issues' => nullable_str($values['known_issues'] ?? null),
+    ]);
+
+    header('Location: /device?serial=' . urlencode($device->serialNumber));
+    exit;
+}
+
+$serial = trim((string)($_GET['serial'] ?? $_POST['serial_number'] ?? ''));
+if (blank($serial)) {
     header('Location: /inventory');
     exit;
 }
 
 $device = $db->get_device_by_serial($serial);
-
 if (!$device) {
     header('Location: /inventory');
     exit;
 }
 
-view('deviceEdit.view.php', [
-    'device' => $device
-]);
+$models = $db->get_all_device_models();
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    view('deviceEdit.view.php', ['device' => $device, 'models' => $models]);
+} else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    handle_device_edit($db, $device, $models);
+}

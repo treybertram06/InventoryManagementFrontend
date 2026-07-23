@@ -128,7 +128,6 @@ class Database {
             d.screen_original,
             d.previously_repaired,
             d.known_issues,
-            d.battery_original, d.screen_original, d.previously_repaired, d.known_issues,
             i.grade, i.condition_notes, i.repairs_needed_done, i.status,
             COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
             i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
@@ -178,6 +177,12 @@ class Database {
         return $stmt->execute([$productType, $friendlyName]);
     }
 
+    public function get_all_device_models(): array {
+        $stmt = $this->pdo->prepare("SELECT product_type, friendly_name FROM device_model ORDER BY friendly_name");
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     // --- Inventory Item ---
     public function create_inventory_item($serialNumber, $grade): bool {
         $stmt = $this->pdo->prepare("INSERT INTO inventory_item (serial_number, grade) VALUES (?, ?)");
@@ -207,21 +212,19 @@ class Database {
         return $stmt->execute($data);
     }
     public function update_device(array $data): bool {
-
-    $stmt = $this->pdo->prepare("
-        UPDATE device
-        SET
-            product_type = :product_type,
-            model_number = :model_number,
-            color = :color,
-            region_code = :region_code,
-            storage_gb = :storage_gb,
-            known_issues = :known_issues
-        WHERE serial_number = :serial_number
-    ");
-
-    return $stmt->execute($data);
-}
+        $stmt = $this->pdo->prepare("
+            UPDATE device
+            SET
+                product_type = :product_type,
+                model_number = :model_number,
+                color = :color,
+                region_code = :region_code,
+                storage_gb = :storage_gb,
+                known_issues = :known_issues
+            WHERE serial_number = :serial_number
+        ");
+        return $stmt->execute($data);
+    }
 
     // --- Batch ---
     public function get_batch_id_by_number($batchNumber): ?int {

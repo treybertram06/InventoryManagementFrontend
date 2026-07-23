@@ -21,6 +21,10 @@ function nearest_pow_of_two($number) {
 }
 
 $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white';
+
+global $db;
+$currentUser = Core\Common::current_user($db);
+$isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 ?>
 <div id="inventory-table" class="overflow-hidden rounded-md border border-text-muted/20 bg-surface shadow-sm dark:bg-surface-dark">
     <div class="flex flex-wrap items-center gap-3 border-b border-text-muted/20 p-4">
@@ -116,10 +120,12 @@ $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 te
                             Test
                         </a>
 
-                        <a href="/device-edit?serial=<?= urlencode($device->serialNumber) ?>"
-                        class="font-medium text-primary hover:underline dark:text-primary-light">
-                            Edit
-                        </a>
+                        <?php if ($isAdmin): ?>
+                            <a href="/device-edit?serial=<?= urlencode($device->serialNumber) ?>"
+                            class="font-medium text-primary hover:underline dark:text-primary-light">
+                                Edit
+                            </a>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endforeach; ?>
