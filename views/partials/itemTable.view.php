@@ -106,8 +106,20 @@ $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 te
                     <td id="suggested-price-column" class="px-4 py-3 text-sm text-text dark:text-white">—</td>
                     <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->batchNumber) ?></td>
                     <td class="px-4 py-3 text-sm">
-                        <a href="/device?serial=<?= urlencode($device->serialNumber) ?>" class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">View</a>
-                        <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>" class="font-medium text-primary hover:underline dark:text-primary-light">Test</a>
+                        <a href="/device?serial=<?= urlencode($device->serialNumber) ?>"
+                        class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
+                            View
+                        </a>
+
+                        <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>"
+                        class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
+                            Test
+                        </a>
+
+                        <a href="/device-edit?serial=<?= urlencode($device->serialNumber) ?>"
+                        class="font-medium text-primary hover:underline dark:text-primary-light">
+                            Edit
+                        </a>
                     </td>
                 </tr>
             <?php endforeach; ?>

@@ -116,8 +116,18 @@ class Database {
     // --- Device ---
     private const DEVICE_REPORT_SELECT = "
         SELECT
-            d.serial_number, d.imei, d.product_type, dm.friendly_name, d.model_number,
-            d.color, d.region_code, d.storage_gb,
+            d.serial_number,
+            d.imei,
+            d.product_type,
+            dm.friendly_name,
+            d.model_number,
+            d.color,
+            d.region_code,
+            d.storage_gb,
+            d.battery_original,
+            d.screen_original,
+            d.previously_repaired,
+            d.known_issues,
             d.battery_original, d.screen_original, d.previously_repaired, d.known_issues,
             i.grade, i.condition_notes, i.repairs_needed_done, i.status,
             COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
@@ -196,6 +206,22 @@ class Database {
         ");
         return $stmt->execute($data);
     }
+    public function update_device(array $data): bool {
+
+    $stmt = $this->pdo->prepare("
+        UPDATE device
+        SET
+            product_type = :product_type,
+            model_number = :model_number,
+            color = :color,
+            region_code = :region_code,
+            storage_gb = :storage_gb,
+            known_issues = :known_issues
+        WHERE serial_number = :serial_number
+    ");
+
+    return $stmt->execute($data);
+}
 
     // --- Batch ---
     public function get_batch_id_by_number($batchNumber): ?int {
