@@ -122,9 +122,16 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
                         <?php if ($isAdmin): ?>
                             <a href="/device-edit?serial=<?= urlencode($device->serialNumber) ?>"
-                            class="font-medium text-primary hover:underline dark:text-primary-light">
+                            class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
                                 Edit
                             </a>
+
+                            <form method="POST" action="/device-delete" class="inline" onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
+                                <input type="hidden" name="serial_number" value="<?= htmlspecialchars($device->serialNumber) ?>">
+                                <button type="submit" class="font-medium text-red-600 hover:underline dark:text-red-400">
+                                    Delete
+                                </button>
+                            </form>
                         <?php endif; ?>
                     </td>
                 </tr>

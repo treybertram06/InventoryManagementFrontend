@@ -140,6 +140,7 @@ class Database {
         LEFT JOIN inventory_item i ON i.serial_number = d.serial_number
         LEFT JOIN diagnostic_session ds ON ds.id = i.canonical_session_id
         LEFT JOIN supplier_manifest_item smi ON smi.id = d.supplier_manifest_item_id
+        WHERE d.deleted_at IS NULL
     ";
 
     public function get_all_devices(): array | null {
@@ -152,7 +153,7 @@ class Database {
     }
 
     public function get_device_by_serial($serialNumber): Device | null {
-        $stmt = $this->pdo->prepare(self::DEVICE_REPORT_SELECT . " WHERE d.serial_number = ?");
+        $stmt = $this->pdo->prepare(self::DEVICE_REPORT_SELECT . " AND d.serial_number = ?");
         $stmt->execute([$serialNumber]);
         $data = $stmt->fetch();
 
@@ -181,6 +182,11 @@ class Database {
         $stmt = $this->pdo->prepare("SELECT product_type, friendly_name FROM device_model ORDER BY friendly_name");
         $stmt->execute();
         return $stmt->fetchAll();
+    }
+
+    public function delete_device($serialNumber): bool {
+        $stmt = $this->pdo->prepare("UPDATE device SET deleted_at = NOW() WHERE serial_number = ?");
+        return $stmt->execute([$serialNumber]);
     }
 
     // --- Inventory Item ---

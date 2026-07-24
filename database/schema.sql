@@ -207,3 +207,5 @@ ALTER TABLE supplier_manifest_item ADD COLUMN supplier_item_id VARCHAR(64);
 ALTER TABLE supplier_manifest_item MODIFY COLUMN serial_number VARCHAR(32) NULL;
 ALTER TABLE supplier_manifest_item ADD UNIQUE KEY uq_manifest_imei (batch_id, imei);
 ALTER TABLE supplier_manifest_item DROP INDEX uq_manifest_serial;
+
+ALTER TABLE device ADD COLUMN deleted_at DATETIME NULL DEFAULT NULL;

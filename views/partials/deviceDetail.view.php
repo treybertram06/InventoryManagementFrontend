@@ -45,6 +45,10 @@ $resultBadgeClasses = [
     'pending' => 'bg-yellow-500/20 text-yellow-700 dark:text-yellow-400',
     'skipped' => 'bg-text-muted/15 text-text-muted dark:bg-white/10 dark:text-white/50',
 ];
+
+global $db;
+$currentUser = Core\Common::current_user($db);
+$isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 ?>
 <div class="mx-auto max-w-[96rem] px-4 py-6 sm:px-6 lg:px-8">
 
@@ -63,9 +67,19 @@ $resultBadgeClasses = [
                 <span class="rounded px-2 py-1 text-xs font-semibold uppercase <?= $gradeBadge ?>">Grade <?= fmt($device->grade) ?></span>
             </div>
         </div>
-        <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>" class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover">
-            Run Test
-        </a>
+        <div class="flex gap-2">
+            <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>" class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover">
+                Run Test
+            </a>
+            <?php if ($isAdmin): ?>
+                <form method="POST" action="/device-delete" onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
+                    <input type="hidden" name="serial_number" value="<?= htmlspecialchars($device->serialNumber) ?>">
+                    <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
+                        Delete
+                    </button>
+                </form>
+            <?php endif; ?>
+        </div>
     </div>
 
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">

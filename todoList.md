@@ -11,3 +11,6 @@
   - Sales statistics and whatnot
 - Admin dashboard
   - User management
+  - Manual data editing
+  - Sale reversal
+  - 
