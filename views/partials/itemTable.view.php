@@ -93,23 +93,23 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                     data-grade="<?= htmlspecialchars($device->grade) ?>"
                     data-status="<?= htmlspecialchars($device->status) ?>"
                 >
-                    <td class="px-4 py-3 text-sm font-medium text-text dark:text-white"><?= htmlspecialchars($device->friendlyName) ?></td>
+                    <td class="px-4 py-3 text-sm font-medium whitespace-nowrap text-text dark:text-white"><?= htmlspecialchars($device->friendlyName) ?></td>
                     <?php $gradeRank = array_search($device->grade, $grades); // Has to be sorted manually because theres no implicit value within the grading system
                     // it would actually work fine with the labels I chose for grades - coincidentally, the grades are alphabetical, including 'Parts' and 'Scrap' - but this is more robust ?>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70" data-sort-value="<?= $gradeRank !== false ? $gradeRank : count($grades) ?>"><?= htmlspecialchars($device->grade) ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->color) ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars(nearest_pow_of_two($device->storageGb) . 'gb') ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars((int)$device->batteryHealthPct . '%') ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->previouslyRepaired ? "Yes" : "No") ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->serialNumber) ?></td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->imei ?? '—') ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70" data-sort-value="<?= $gradeRank !== false ? $gradeRank : count($grades) ?>"><?= htmlspecialchars($device->grade) ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->color) ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars(nearest_pow_of_two($device->storageGb) . 'gb') ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars((int)$device->batteryHealthPct . '%') ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->previouslyRepaired ? "Yes" : "No") ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->serialNumber) ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->imei ?? '—') ?></td>
 
-                    <td id="cost-column" class="px-4 py-3 text-sm text-text dark:text-white">
+                    <td id="cost-column" class="px-4 py-3 text-sm whitespace-nowrap text-text dark:text-white">
                         <?= $device->costPaid !== null ? '$' . number_format($device->costPaid, 2) : '—' ?>
                     </td>
-                    <td id="suggested-price-column" class="px-4 py-3 text-sm text-text dark:text-white">—</td>
-                    <td class="px-4 py-3 text-sm text-text-muted dark:text-white/70"><?= htmlspecialchars($device->batchNumber) ?></td>
-                    <td class="px-4 py-3 text-sm">
+                    <td id="suggested-price-column" class="px-4 py-3 text-sm whitespace-nowrap text-text dark:text-white">—</td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->batchNumber) ?></td>
+                    <td class="px-4 py-3 text-sm whitespace-nowrap">
                         <a href="/device?serial=<?= urlencode($device->serialNumber) ?>"
                         class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
                             View

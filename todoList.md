@@ -6,7 +6,6 @@
   - Has a form to input necessary sales info
 - Upgrades to inventory management page
   - More thorough filters
-  - Ability to delete devices if an administrator
 - Sales history and reporting page
   - Sales statistics and whatnot
 - Admin dashboard
