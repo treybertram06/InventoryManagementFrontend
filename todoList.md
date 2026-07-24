@@ -1,6 +1,7 @@
 # Remaining work
 
 - Expand role based access where applicable
+  - Refactor to use middleware-style access control
 - Add a sales processing module
   - Brought there by selecting a device
   - Has a form to input necessary sales info
