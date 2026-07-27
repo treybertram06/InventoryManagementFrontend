@@ -13,4 +13,5 @@
   - User management
   - Manual data editing
   - Sale reversal
-  - 
+- Home page
+  - Update to display real-time data once everything else is done
