@@ -50,6 +50,12 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                 <option value="<?= htmlspecialchars($grade) ?>"><?= htmlspecialchars($grade) ?></option>
             <?php endforeach; ?>
         </select>
+        <select id="inventory-table-status" class="<?= $selectClasses ?>">
+            <option value="">All Statuses</option>
+            <?php foreach ($statusLabels as $status => $label): ?>
+                <option value="<?= htmlspecialchars($status) ?>"><?= htmlspecialchars($label) ?></option>
+            <?php endforeach; ?>
+        </select>
     </div>
     <div class="max-h-[calc(100vh-13rem)] overflow-auto">
         <table class="min-w-full divide-y divide-text-muted/20">
@@ -152,17 +158,20 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         // Search
         const search = document.getElementById('inventory-table-search');
         const gradeFilter = document.getElementById('inventory-table-grade');
+        const statusFilter = document.getElementById('inventory-table-status');
         const emptyState = document.getElementById('inventory-table-empty');
 
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
             const grade = gradeFilter.value;
+            const status = statusFilter.value;
             let visibleCount = 0;
 
             for (const row of rows) {
                 const matchesQuery = !query || row.dataset.name.includes(query);
                 const matchesGrade = !grade || row.dataset.grade === grade;
-                const visible = matchesQuery && matchesGrade;
+                const matchesStatus = !status || row.dataset.status === status;
+                const visible = matchesQuery && matchesGrade && matchesStatus;
 
                 row.classList.toggle('hidden', !visible);
                 if (visible) visibleCount++;
@@ -173,6 +182,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
         search.addEventListener('input', applyFilters);
         gradeFilter.addEventListener('change', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
 
         // Sorting
         const tbody = container.querySelector('tbody');
