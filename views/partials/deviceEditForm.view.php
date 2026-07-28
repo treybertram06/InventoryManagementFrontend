@@ -112,6 +112,71 @@ if ($selectedStorage !== '' && !in_array((int)$selectedStorage, $storageSizes, t
                 </div>
             </div>
 
+            <hr class="border-text-muted/20">
+
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                    <label for="edit-grade" class="<?= $labelClasses ?>">Grade</label>
+                    <?php $selectedGrade = $values['grade'] ?? $device->grade; ?>
+                    <select id="edit-grade" name="grade" class="<?= $selectClasses ?>">
+                        <?php foreach (['A', 'B', 'C', 'D', 'Parts', 'Scrap'] as $grade): ?>
+                            <option value="<?= $grade ?>" <?= $selectedGrade === $grade ? 'selected' : '' ?>><?= $grade ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="edit-repair-cost" class="<?= $labelClasses ?>">Repair Cost</label>
+                    <input
+                        id="edit-repair-cost"
+                        type="number"
+                        step="0.01"
+                        name="repair_cost"
+                        value="<?= old($values, 'repair_cost', (string)$device->repairCost) ?>"
+                        class="<?= $inputClasses ?>">
+                </div>
+
+                <div>
+                    <label for="edit-b2b-floor-price" class="<?= $labelClasses ?>">B2B Floor Price</label>
+                    <input
+                        id="edit-b2b-floor-price"
+                        type="number"
+                        step="0.01"
+                        name="b2b_floor_price"
+                        value="<?= old($values, 'b2b_floor_price', $device->b2bFloorPrice !== null ? (string)$device->b2bFloorPrice : '') ?>"
+                        class="<?= $inputClasses ?>">
+                </div>
+
+                <div>
+                    <label for="edit-b2c-floor-price" class="<?= $labelClasses ?>">B2C Floor Price</label>
+                    <input
+                        id="edit-b2c-floor-price"
+                        type="number"
+                        step="0.01"
+                        name="b2c_floor_price"
+                        value="<?= old($values, 'b2c_floor_price', $device->b2cFloorPrice !== null ? (string)$device->b2cFloorPrice : '') ?>"
+                        class="<?= $inputClasses ?>">
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="edit-condition-notes" class="<?= $labelClasses ?>">Condition Notes</label>
+                    <textarea
+                        id="edit-condition-notes"
+                        name="condition_notes"
+                        rows="3"
+                        class="<?= $textareaClasses ?>"><?= old($values, 'condition_notes', $device->conditionNotes ?? '') ?></textarea>
+                </div>
+
+                <div class="sm:col-span-2">
+                    <label for="edit-repairs-needed-done" class="<?= $labelClasses ?>">Repairs Needed / Done</label>
+                    <textarea
+                        id="edit-repairs-needed-done"
+                        name="repairs_needed_done"
+                        rows="3"
+                        class="<?= $textareaClasses ?>"><?= old($values, 'repairs_needed_done', $device->repairsNeededDone ?? '') ?></textarea>
+                </div>
+            </div>
+
             <button
                 type="submit"
                 class="w-full rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover sm:w-auto"

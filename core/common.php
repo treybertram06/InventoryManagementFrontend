@@ -18,6 +18,26 @@ class Common {
         return $db->get_user_by_id($_SESSION['user_id']);
     }
 
+    public static function require_login(Database $db): User
+    {
+        $user = self::current_user($db);
+        if (!$user) {
+            header('Location: /login');
+            exit;
+        }
+        return $user;
+    }
+
+    public static function require_admin(Database $db): User
+    {
+        $user = self::require_login($db);
+        if ($user->role !== \Models\UserRole::Admin) {
+            header('Location: /inventory');
+            exit;
+        }
+        return $user;
+    }
+
     public static function uri_is($value)
     {
         return get_uri() == $value;
@@ -47,5 +67,19 @@ class Common {
     {
         $height = $height ?: $width;
         echo str_replace('<svg', '<svg class="h-' . $height . ' w-' . $width . '"', $svg);
+    }
+
+    public static function admin_dashboard_data(Database $db): array
+    {
+        $users = $db->get_all_users() ?? [];
+        $devices = $db->get_all_devices() ?? [];
+        $soldDevices = array_values(array_filter($devices, fn($d) => $d->status === 'sold')); // Filter out unsold devices and return an integer-keyed array
+        $adminCount = count(array_filter($users, fn($u) => $u->role === \Models\UserRole::Admin));
+
+        return [
+            'users' => $users,
+            'soldDevices' => $soldDevices,
+            'adminCount' => $adminCount,
+        ];
     }
 }

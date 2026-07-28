@@ -1,15 +1,6 @@
 <?php
 
-$user = Core\Common::current_user($db);
-if (!$user) {
-    header('Location: /login');
-    exit;
-}
-
-if ($user->role !== Models\UserRole::Admin) {
-    header('Location: /inventory');
-    exit;
-}
+$user = Core\Common::require_admin($db);
 
 $serial = trim((string)($_POST['serial_number'] ?? ''));
 if ($serial === '') {

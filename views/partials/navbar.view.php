@@ -9,6 +9,10 @@
             </span>
         </a>
 
+        <?php
+            global $db;
+            $currentUser = Core\Common::current_user($db);
+        ?>
         <div class="flex flex-1 items-center justify-end md:justify-between">
             <nav aria-label="Global" class="hidden md:block">
                 <ul class="flex items-center gap-6 text-sm">
@@ -24,14 +28,18 @@
                             Intake
                         </a>
                     </li>
+
+                    <?php if ($currentUser && $currentUser->role === Models\UserRole::Admin): ?>
+                        <li>
+                            <a class="text-text-muted transition hover:text-text-muted/75 dark:text-white dark:hover:text-white/75" href="/admin">
+                                Admin
+                            </a>
+                        </li>
+                    <?php endif; ?>
                 </ul>
             </nav>
 
             <div class="flex items-center gap-4">
-                <?php
-                    global $db;
-                    $currentUser = Core\Common::current_user($db);
-                ?>
                 <?php if ($currentUser): ?>
                     <details class="relative">
                         <summary class="flex cursor-pointer list-none items-center gap-2 rounded-md bg-surface-muted px-4 py-2.5 text-sm font-medium text-text transition hover:bg-surface-muted/75 dark:bg-surface-muted-dark dark:text-white [&::-webkit-details-marker]:hidden">

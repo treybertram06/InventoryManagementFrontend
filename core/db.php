@@ -103,6 +103,16 @@ class Database {
         return (bool) $stmt->fetch();
     }
 
+    public function update_user_role($id, string $role): bool {
+        $stmt = $this->pdo->prepare("UPDATE user SET role = ? WHERE id = ?");
+        return $stmt->execute([$role, $id]);
+    }
+
+    public function delete_user($id): bool {
+        $stmt = $this->pdo->prepare("DELETE FROM user WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
+
     public function get_login_credentials($identifier, bool $isEmail = true): ?array {
         $stmt = $isEmail ?
             $this->pdo->prepare("SELECT id, password_hash FROM user WHERE email = ?") :
@@ -131,7 +141,7 @@ class Database {
             i.grade, i.condition_notes, i.repairs_needed_done, i.status,
             COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
             i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
-            i.sale_price, i.sale_channel,
+            i.sale_price, i.sale_channel, i.sold_at, i.buyer_info,
             b.batch_number, b.technician, d.intake_at, b.received_at,
             ds.battery_health_pct, ds.count_pass, ds.count_fail, ds.count_na, ds.count_pending
         FROM device d
@@ -295,6 +305,30 @@ class Database {
     public function update_inventory_item_grade($serialNumber, $grade, ?string $conditionNotes): bool {
         $stmt = $this->pdo->prepare("UPDATE inventory_item SET grade = ?, condition_notes = ? WHERE serial_number = ?");
         return $stmt->execute([$grade, $conditionNotes, $serialNumber]);
+    }
+
+    public function update_inventory_item(array $data): bool {
+        $stmt = $this->pdo->prepare("
+            UPDATE inventory_item
+            SET
+                grade = :grade,
+                condition_notes = :condition_notes,
+                repairs_needed_done = :repairs_needed_done,
+                repair_cost = :repair_cost,
+                b2b_floor_price = :b2b_floor_price,
+                b2c_floor_price = :b2c_floor_price
+            WHERE serial_number = :serial_number
+        ");
+        return $stmt->execute($data);
+    }
+
+    public function reverse_sale($serialNumber): bool {
+        $stmt = $this->pdo->prepare("
+            UPDATE inventory_item
+            SET status = 'in_stock', sale_price = NULL, sale_channel = NULL, sold_at = NULL, buyer_info = NULL
+            WHERE serial_number = ?
+        ");
+        return $stmt->execute([$serialNumber]);
     }
 
     public function get_canonical_test_results($serialNumber): array {

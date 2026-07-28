@@ -32,6 +32,8 @@ class Device {
     public ?float $b2cFloorPrice;
     public ?float $salePrice;
     public ?string $saleChannel;
+    public ?DateTime $soldAt;
+    public ?string $buyerInfo;
 
     // Provenance
     public ?string $batchNumber;
@@ -73,6 +75,8 @@ class Device {
         $device->b2cFloorPrice = isset($row['b2c_floor_price']) ? (float)$row['b2c_floor_price'] : null;
         $device->salePrice = isset($row['sale_price']) ? (float)$row['sale_price'] : null;
         $device->saleChannel = $row['sale_channel'];
+        $device->soldAt = isset($row['sold_at']) ? new DateTime($row['sold_at']) : null;
+        $device->buyerInfo = $row['buyer_info'] ?? null;
 
         $device->batchNumber = $row['batch_number'];
         $device->technician = $row['technician'];

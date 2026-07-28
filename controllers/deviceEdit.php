@@ -1,6 +1,7 @@
 <?php
 
 const STORAGE_SIZES = [16, 32, 64, 128, 256, 512, 1024, 2048];
+const GRADES = ['A', 'B', 'C', 'D', 'Parts', 'Scrap'];
 
 function blank($value): bool {
     return trim((string)($value ?? '')) === '';
@@ -10,16 +11,7 @@ function nullable_str($value): ?string {
     return blank($value) ? null : $value;
 }
 
-$user = Core\Common::current_user($db);
-if (!$user) {
-    header('Location: /login');
-    exit;
-}
-
-if ($user->role !== Models\UserRole::Admin) {
-    header('Location: /inventory');
-    exit;
-}
+$user = Core\Common::require_admin($db);
 
 function handle_device_edit(Core\Database $db, Models\Device $device, array $models): void {
     $values = $_POST;
@@ -38,6 +30,10 @@ function handle_device_edit(Core\Database $db, Models\Device $device, array $mod
         $errors[] = "Please select a valid storage size.";
     }
 
+    if (!in_array($values['grade'] ?? null, GRADES, true)) {
+        $errors[] = "Please select a valid grade.";
+    }
+
     if (!empty($errors)) {
         view('deviceEdit.view.php', ['device' => $device, 'models' => $models, 'errors' => $errors, 'values' => $values]);
         return;
@@ -51,6 +47,16 @@ function handle_device_edit(Core\Database $db, Models\Device $device, array $mod
         'region_code' => nullable_str($values['region_code'] ?? null),
         'storage_gb' => (float)$values['storage_gb'],
         'known_issues' => nullable_str($values['known_issues'] ?? null),
+    ]);
+
+    $db->update_inventory_item([
+        'serial_number' => $device->serialNumber,
+        'grade' => $values['grade'],
+        'condition_notes' => nullable_str($values['condition_notes'] ?? null),
+        'repairs_needed_done' => nullable_str($values['repairs_needed_done'] ?? null),
+        'repair_cost' => (float)($values['repair_cost'] ?? 0),
+        'b2b_floor_price' => blank($values['b2b_floor_price'] ?? null) ? null : (float)$values['b2b_floor_price'],
+        'b2c_floor_price' => blank($values['b2c_floor_price'] ?? null) ? null : (float)$values['b2c_floor_price'],
     ]);
 
     header('Location: /device?serial=' . urlencode($device->serialNumber));

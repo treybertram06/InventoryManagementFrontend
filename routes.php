@@ -17,6 +17,12 @@ $router->get('/device-edit', 'controllers/deviceEdit.php');
 $router->post('/device-edit', 'controllers/deviceEdit.php');
 $router->post('/device-delete', 'controllers/deviceDelete.php');
 
+$router->get('/admin', 'controllers/admin/admin.php');
+$router->post('/admin-user-create', 'controllers/admin/adminUserCreate.php');
+$router->post('/admin-user-role', 'controllers/admin/adminUserRole.php');
+$router->post('/admin-user-delete', 'controllers/admin/adminUserDelete.php');
+$router->post('/admin-sale-reverse', 'controllers/admin/adminSaleReverse.php');
+
 $router->get('/login', 'controllers/login.php');
 $router->post('/login', 'controllers/login.php');
 
