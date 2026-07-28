@@ -1,236 +1,283 @@
--- Test data for PhoneInventory database, AI generated
-use PhoneInventory;
+-- Test/seed data for the phone_inventory database.
+-- Matches database/schema.sql. Safe to re-run: truncates all tables first.
+
+USE phone_inventory;
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE test_result;
+TRUNCATE TABLE inventory_item;
+TRUNCATE TABLE diagnostic_session;
+TRUNCATE TABLE device;
+TRUNCATE TABLE supplier_manifest_item;
+TRUNCATE TABLE batch;
+TRUNCATE TABLE user;
+TRUNCATE TABLE device_model;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================================
--- DeviceModel: Apple device catalog
+-- device_model: device catalog, lazily populated in real usage
 -- ============================================================================
-insert into DeviceModel (Mdl_productType, Mdl_friendlyName, Mdl_hasHomeButton, Mdl_hasFaceId, Mdl_hasActionButton, Mdl_hasCameraButton, Mdl_hasTelephoto, Mdl_hasLidar) values
-('iPhone15,2', 'iPhone 15', false, true, true, true, false, false),
-('iPhone15,3', 'iPhone 15 Plus', false, true, true, true, false, false),
-('iPhone15,4', 'iPhone 15 Pro', false, true, true, true, true, true),
-('iPhone15,5', 'iPhone 15 Pro Max', false, true, true, true, true, true),
-('iPhone14,7', 'iPhone 14', false, true, true, true, false, false),
-('iPhone14,8', 'iPhone 14 Plus', false, true, true, true, false, false),
-('iPhone14,2', 'iPhone 14 Pro', false, true, true, true, true, true),
-('iPhone14,3', 'iPhone 14 Pro Max', false, true, true, true, true, true),
-('iPhone13,2', 'iPhone 13', false, true, true, true, false, false),
-('iPhone13,3', 'iPhone 13 mini', false, true, true, true, false, false),
-('iPhone13,4', 'iPhone 13 Pro', false, true, true, true, true, true),
-('iPhone13,1', 'iPhone 13 Pro Max', false, true, true, true, true, true),
-('iPhone12,1', 'iPhone 12', false, true, true, true, false, false),
-('iPhone12,3', 'iPhone 12 Pro', false, true, true, true, true, false);
-
--- ============================================================================
--- User: Staff members
--- ============================================================================
-insert into User (Usr_username, Usr_email, Usr_passwordHash, Usr_role) values
-('admin_user', 'admin@inventory.local', '$2y$10$PgZe1VU.GhWsDQ7G3uXH5OkT5nYn2Vb0X9K5Q8Z7C9W0E7Z4X1Y2Z', 'admin'),
-('tech_john', 'john.tech@inventory.local', '$2y$10$PgZe1VU.GhWsDQ7G3uXH5OkT5nYn2Vb0X9K5Q8Z7C9W0E7Z4X1Y2Z', 'technician'),
-('tech_sarah', 'sarah.tech@inventory.local', '$2y$10$PgZe1VU.GhWsDQ7G3uXH5OkT5nYn2Vb0X9K5Q8Z7C9W0E7Z4X1Y2Z', 'technician'),
-('tech_mike', 'mike.tech@inventory.local', '$2y$10$PgZe1VU.GhWsDQ7G3uXH5OkT5nYn2Vb0X9K5Q8Z7C9W0E7Z4X1Y2Z', 'technician');
+INSERT INTO device_model
+    (product_type, friendly_name, has_home_button, has_face_id, has_action_button, has_camera_button, has_telephoto, has_lidar)
+VALUES
+    ('iPhone13,1', 'iPhone 12 mini',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone13,2', 'iPhone 12',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone13,3', 'iPhone 12 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone13,4', 'iPhone 12 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,2', 'iPhone 13 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,3', 'iPhone 13 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,7', 'iPhone 14',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone14,8', 'iPhone 14 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone15,2', 'iPhone 14 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone15,3', 'iPhone 14 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone15,4', 'iPhone 15',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone15,5', 'iPhone 15 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone16,1', 'iPhone 15 Pro',      FALSE, TRUE, TRUE,  FALSE, TRUE,  TRUE),
+    ('iPhone17,1', 'iPhone 16 Pro',      FALSE, TRUE, TRUE,  TRUE,  TRUE,  TRUE);
 
 -- ============================================================================
--- Batch: Intake batches from suppliers
+-- user: staff accounts
+-- password_hash values are dummy bcrypt-shaped strings, NOT real credentials
 -- ============================================================================
-insert into Batch (Bat_batchId, Bat_supplierBatchId, Bat_userId, Bat_receivedAt, Bat_notes) values
-(1, 2001, 1, '2024-01-15 09:00:00', 'First batch from primary supplier'),
-(2, 2002, 2, '2024-01-20 14:30:00', 'Mixed condition lot'),
-(3, 2003, 3, '2024-02-01 10:15:00', 'Grade A devices only'),
-(4, 2004, 2, '2024-02-10 11:45:00', 'Bulk intake - 50 units'),
-(5, 2005, 4, '2024-02-25 13:20:00', 'Damaged units - will require repair');
-
--- ============================================================================
--- SupplierManifest: Items in intake batches
--- ============================================================================
-insert into SupplierManifest (Man_batchId, Man_serialNumber, Man_model, Man_color, Man_supplierGrade, Man_hasIssues, Man_issueDescription, Man_supplierValue, Man_revisionPrice, Man_batteryHealth) values
-(1, 'SN001001', 'iPhone 15 Pro', 'Space Black', 'A', false, null, 999.99, 949.99, 100.0),
-(1, 'SN001002', 'iPhone 15 Pro', 'Titanium Blue', 'A', false, null, 999.99, 949.99, 98.5),
-(1, 'SN001003', 'iPhone 15', 'Black', 'B', true, 'Small crack on back glass', 599.99, 499.99, 92.0),
-(1, 'SN001004', 'iPhone 14 Pro Max', 'Gold', 'A', false, null, 899.99, 849.99, 97.0),
-(2, 'SN002001', 'iPhone 15 Plus', 'White', 'B', false, null, 699.99, 649.99, 95.0),
-(2, 'SN002002', 'iPhone 14', 'Red', 'C', true, 'Moderate battery degradation', 399.99, 349.99, 78.0),
-(2, 'SN002003', 'iPhone 13', 'Blue', 'C', true, 'Camera has dust inside', 349.99, 299.99, 85.0),
-(2, 'SN002004', 'iPhone 13 mini', 'Green', 'D', true, 'Screen burn-in visible', 249.99, 149.99, 65.0),
-(3, 'SN003001', 'iPhone 15 Pro Max', 'Space Black', 'A', false, null, 1099.99, 1049.99, 99.0),
-(3, 'SN003002', 'iPhone 15 Pro', 'Natural Titanium', 'A', false, null, 999.99, 949.99, 100.0),
-(3, 'SN003003', 'iPhone 15 Pro', 'Space Black', 'A', false, null, 999.99, 949.99, 99.5),
-(3, 'SN003004', 'iPhone 14 Pro', 'Silver', 'A', false, null, 799.99, 749.99, 98.0),
-(4, 'SN004001', 'iPhone 15', 'Black', 'B', false, null, 599.99, 549.99, 94.0),
-(4, 'SN004002', 'iPhone 15', 'White', 'B', false, null, 599.99, 549.99, 93.5),
-(4, 'SN004003', 'iPhone 14', 'Midnight', 'C', true, 'Minor scratch on frame', 399.99, 349.99, 88.0),
-(5, 'SN005001', 'iPhone 13', 'Sierra Blue', 'D', true, 'Cracked screen, battery dead', 299.99, 99.99, 40.0),
-(5, 'SN005002', 'iPhone 12', 'Purple', 'D', true, 'Liquid damage indicators', 299.99, 99.99, 35.0);
+INSERT INTO user (id, username, email, password_hash, role) VALUES
+    (1, 'admin',       'admin@phoneinventory.local',   '$2y$10$Q7z1J5m1n9r0KpV8v6iVoOeWc1s2H3lM4rY5tZ6uA7bC8dE9fG0hK', 'admin'),
+    (2, 'john.ramirez','john.ramirez@phoneinventory.local', '$2y$10$Q7z1J5m1n9r0KpV8v6iVoOeWc1s2H3lM4rY5tZ6uA7bC8dE9fG0hK', 'technician'),
+    (3, 'sarah.lee',   'sarah.lee@phoneinventory.local',    '$2y$10$Q7z1J5m1n9r0KpV8v6iVoOeWc1s2H3lM4rY5tZ6uA7bC8dE9fG0hK', 'technician'),
+    (4, 'mike.chen',   'mike.chen@phoneinventory.local',    '$2y$10$Q7z1J5m1n9r0KpV8v6iVoOeWc1s2H3lM4rY5tZ6uA7bC8dE9fG0hK', 'technician');
 
 -- ============================================================================
--- Device: Physical devices (with all intake details)
+-- batch: supplier intake batches
 -- ============================================================================
-insert into Device (Dev_serialNumber, Dev_udid, Dev_productType, Dev_modelNumber, Dev_color, Dev_regionCode, Dev_imei, Dev_wifiMac, Dev_bluetoothMac, Dev_storageGb, Dev_batteryOriginal, Dev_screenOriginal, Dev_activationState, Dev_icloudLockStatus, Dev_findMyEnabled, Dev_passcodeProtected, Dev_mdmEnrolled, Dev_canTest, Dev_devicePassword, Dev_knownIssues, Dev_previouslyRepaired, Dev_batchId, Dev_manifestId) values
-
-('SN001001', 'UDID001001', 'iPhone15,4', 'A3093', 'Space Black', 'US', '358674010234567', '00:1A:2B:3C:4D:5E', '00:1E:2A:3B:4C:5D', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Excellent condition', false, 1, 1),
-('SN001002', 'UDID001002', 'iPhone15,4', 'A3093', 'Titanium Blue', 'US', '358674010234568', '00:1A:2B:3C:4D:5F', '00:1E:2A:3B:4C:5E', 512, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Like new', false, 1, 2),
-('SN001003', 'UDID001003', 'iPhone15,2', 'A3091', 'Black', 'US', '358674010234569', '00:1A:2B:3C:4D:60', '00:1E:2A:3B:4C:5F', 128, true, false, 'Activation Locked', 'Locked', 'Disabled', 'Yes', false, false, 'admin123', 'Back glass crack', true, 1, 3),
-('SN001004', 'UDID001004', 'iPhone14,3', 'A2846', 'Gold', 'US', '358674010234570', '00:1A:2B:3C:4D:61', '00:1E:2A:3B:4C:60', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Excellent condition', false, 1, 4),
-
-('SN002001', 'UDID002001', 'iPhone15,3', 'A3092', 'White', 'US', '358674010234571', '00:1A:2B:3C:4D:62', '00:1E:2A:3B:4C:61', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Clean', false, 2, 5),
-('SN002002', 'UDID002002', 'iPhone14,7', 'A2846', 'Red', 'US', '358674010234572', '00:1A:2B:3C:4D:63', '00:1E:2A:3B:4C:62', 128, false, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Battery needs replacement', true, 2, 6),
-('SN002003', 'UDID002003', 'iPhone13,2', 'A2605', 'Blue', 'US', '358674010234573', '00:1A:2B:3C:4D:64', '00:1E:2A:3B:4C:63', 64, true, true, 'Activation Locked', 'Locked', 'Disabled', 'Yes', false, false, 'test123', 'Dust under camera', true, 2, 7),
-('SN002004', 'UDID002004', 'iPhone13,3', 'A2597', 'Green', 'US', '358674010234574', '00:1A:2B:3C:4D:65', '00:1E:2A:3B:4C:64', 128, false, false, 'Activation Locked', 'Locked', 'Disabled', 'No', false, false, null, 'Screen burn-in, battery poor', true, 2, 8),
-
-('SN003001', 'UDID003001', 'iPhone15,5', 'A3094', 'Space Black', 'US', '358674010234575', '00:1A:2B:3C:4D:66', '00:1E:2A:3B:4C:65', 512, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Perfect condition', false, 3, 9),
-('SN003002', 'UDID003002', 'iPhone15,4', 'A3093', 'Natural Titanium', 'US', '358674010234576', '00:1A:2B:3C:4D:67', '00:1E:2A:3B:4C:66', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Like new', false, 3, 10),
-('SN003003', 'UDID003003', 'iPhone15,4', 'A3093', 'Space Black', 'US', '358674010234577', '00:1A:2B:3C:4D:68', '00:1E:2A:3B:4C:67', 128, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Excellent condition', false, 3, 11),
-('SN003004', 'UDID003004', 'iPhone14,2', 'A2758', 'Silver', 'US', '358674010234578', '00:1A:2B:3C:4D:69', '00:1E:2A:3B:4C:68', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Good condition', false, 3, 12),
-
-('SN004001', 'UDID004001', 'iPhone15,2', 'A3091', 'Black', 'US', '358674010234579', '00:1A:2B:3C:4D:6A', '00:1E:2A:3B:4C:69', 256, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Clean', false, 4, 13),
-('SN004002', 'UDID004002', 'iPhone15,2', 'A3091', 'White', 'US', '358674010234580', '00:1A:2B:3C:4D:6B', '00:1E:2A:3B:4C:6A', 128, true, true, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Clean', false, 4, 14),
-('SN004003', 'UDID004003', 'iPhone14,7', 'A2846', 'Midnight', 'US', '358674010234581', '00:1A:2B:3C:4D:6C', '00:1E:2A:3B:4C:6B', 256, true, false, 'Activation Locked', 'Locked', 'Enabled', 'Yes', false, true, null, 'Minor scratch on frame', false, 4, 15),
-
-('SN005001', 'UDID005001', 'iPhone13,2', 'A2605', 'Sierra Blue', 'US', '358674010234582', '00:1A:2B:3C:4D:6D', '00:1E:2A:3B:4C:6C', 128, false, false, 'Activation Locked', 'Unknown', 'Unknown', 'No', false, false, null, 'Broken screen, needs repair', true, 5, 16),
-('SN005002', 'UDID005002', 'iPhone12,1', 'A2404', 'Purple', 'US', '358674010234583', '00:1A:2B:3C:4D:6E', '00:1E:2A:3B:4C:6D', 64, false, false, 'Unknown', 'Unknown', 'Unknown', 'Unknown', false, false, null, 'Liquid damage, needs assessment', false, 5, 17);
+INSERT INTO batch (id, batch_number, supplier_batch_id, technician, location, received_at, notes) VALUES
+    (1, 'B-2024-0001', 'SB-88213', 'John Ramirez', 'Warehouse A', '2024-01-15 09:00:00', 'First batch from primary supplier, mostly Grade A'),
+    (2, 'B-2024-0002', 'SB-88340', 'Sarah Lee',    'Warehouse A', '2024-02-03 11:30:00', 'Mixed condition lot, several units flagged for repair'),
+    (3, 'B-2024-0003', 'SB-88512', 'John Ramirez', 'Warehouse B', '2024-03-10 14:00:00', 'Grade A/B devices only'),
+    (4, 'B-2024-0004', 'SB-88701', 'Mike Chen',    'Warehouse B', '2024-05-22 10:15:00', 'Includes one liquid-damaged unit, one unable to power on'),
+    (5, 'B-2024-0005', 'SB-88950', 'Sarah Lee',    'Warehouse A', '2024-07-14 08:45:00', 'Recent intake, not yet processed');
 
 -- ============================================================================
--- DiagnosticSession: Test sessions for devices
+-- supplier_manifest_item: as-received line items from the supplier manifest
 -- ============================================================================
-insert into DiagnosticSession (Ses_serialNumber, Ses_userId, Ses_iosVersion, Ses_buildVersion, Ses_basebandVersion, Ses_batteryPct, Ses_batteryHealthPct, Ses_batteryCycles, Ses_batteryTempC, Ses_batteryImpedanceMohm, Ses_batterySerial, Ses_isCharging, Ses_dataCapacityGb, Ses_dataAvailableGb, Ses_countPass, Ses_countFail, Ses_countNa, Ses_countPending, Ses_startedAt, Ses_endedAt, Ses_elapsedSeconds) values
-
-('SN001001', 2, '18.0', '18.0', '18.0', 85, 100.0, 45, null, null, null, false, 256.00, 200.00, 10, 0, 0, 0, '2024-02-01 09:00:00', '2024-02-01 09:15:00', 900),
-('SN001002', 2, '18.0', '18.0', '18.0', 76, 98.5, 92, null, null, null, false, 512.00, 450.00, 10, 0, 0, 0, '2024-02-01 10:00:00', '2024-02-01 10:18:00', 1080),
-('SN001003', 3, '18.0', '18.0', '18.0', 45, 92.0, 145, null, null, null, true, 128.00, 90.00, 8, 2, 0, 0, '2024-02-01 11:00:00', '2024-02-01 11:25:00', 1500),
-('SN001004', 2, '17.4.1', '17.4.1', '17.4.1', 88, 97.0, 67, null, null, null, false, 256.00, 220.00, 10, 0, 0, 0, '2024-02-02 09:00:00', '2024-02-02 09:20:00', 1200),
-
-('SN002001', 3, '18.0', '18.0', '18.0', 92, 95.0, 78, null, null, null, false, 256.00, 210.00, 10, 0, 0, 0, '2024-02-02 10:00:00', '2024-02-02 10:16:00', 960),
-('SN002002', 4, '17.4.1', '17.4.1', '17.4.1', 58, 78.0, 156, null, null, null, true, 128.00, 80.00, 6, 3, 1, 0, '2024-02-03 09:00:00', '2024-02-03 09:22:00', 1320),
-('SN002003', 2, '17.3', '17.3', '17.3', 42, 85.0, 198, null, null, null, true, 64.00, 40.00, 7, 1, 1, 1, '2024-02-03 10:30:00', '2024-02-03 10:52:00', 1320),
-('SN003001', 4, '18.0', '18.0', '18.0', 100, 99.0, 45, null, null, null, false, 512.00, 480.00, 10, 0, 0, 0, '2024-02-04 09:00:00', '2024-02-04 09:18:00', 1080),
-('SN003002', 1, '18.0', '18.0', '18.0', 97, 100.0, 28, null, null, null, false, 256.00, 240.00, 10, 0, 0, 0, '2024-02-04 10:00:00', '2024-02-04 10:15:00', 900),
-('SN003003', 2, '18.0', '18.0', '18.0', 95, 99.5, 35, null, null, null, false, 128.00, 110.00, 10, 0, 0, 0, '2024-02-04 11:00:00', '2024-02-04 11:14:00', 840);
-
--- ============================================================================
--- TestResult: Individual test results from diagnostic sessions
--- ============================================================================
-insert into TestResult (Tst_sessionId, Tst_testId, Tst_testLabel, Tst_testGroup, Tst_status, Tst_source) values
-(1, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(1, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(1, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(1, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(1, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(1, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(1, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(1, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(1, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(1, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(2, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(2, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(2, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(2, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(2, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(2, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(2, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(2, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(2, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(2, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(3, 'battery', 'Battery Health', 'Battery', 'fail', 'syslog'),
-(3, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(3, 'camera_front', 'Front Camera', 'Camera', 'na', 'syslog'),
-(3, 'camera_back', 'Back Camera', 'Camera', 'fail', 'syslog'),
-(3, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(3, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(3, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(3, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(3, 'nfc', 'NFC', 'Connectivity', 'pending', 'syslog'),
-(3, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(4, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(4, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(4, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(4, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(4, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(4, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(4, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(4, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(4, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(4, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(5, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(5, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(5, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(5, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(5, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(5, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(5, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(5, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(5, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(5, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(6, 'battery', 'Battery Health', 'Battery', 'fail', 'syslog'),
-(6, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(6, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(6, 'camera_back', 'Back Camera', 'Camera', 'fail', 'syslog'),
-(6, 'microphone', 'Microphone', 'Audio', 'fail', 'syslog'),
-(6, 'speaker', 'Speaker', 'Audio', 'na', 'syslog'),
-(6, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(6, 'bluetooth', 'Bluetooth', 'Connectivity', 'fail', 'syslog'),
-(6, 'nfc', 'NFC', 'Connectivity', 'pending', 'syslog'),
-(6, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(8, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(8, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(8, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(8, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(8, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(8, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(8, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(8, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(8, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(8, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(9, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(9, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(9, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(9, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(9, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(9, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(9, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(9, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(9, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(9, 'gps', 'GPS', 'Sensors', 'pass', 'syslog'),
-
-(10, 'battery', 'Battery Health', 'Battery', 'pass', 'syslog'),
-(10, 'display', 'Display Test', 'Display', 'pass', 'syslog'),
-(10, 'camera_front', 'Front Camera', 'Camera', 'pass', 'syslog'),
-(10, 'camera_back', 'Back Camera', 'Camera', 'pass', 'syslog'),
-(10, 'microphone', 'Microphone', 'Audio', 'pass', 'syslog'),
-(10, 'speaker', 'Speaker', 'Audio', 'pass', 'syslog'),
-(10, 'wifi', 'WiFi', 'Connectivity', 'pass', 'syslog'),
-(10, 'bluetooth', 'Bluetooth', 'Connectivity', 'pass', 'syslog'),
-(10, 'nfc', 'NFC', 'Connectivity', 'pass', 'syslog'),
-(10, 'gps', 'GPS', 'Sensors', 'pass', 'syslog');
+INSERT INTO supplier_manifest_item
+    (id, batch_id, imei, serial_number, supplier_item_id, model, color, supplier_grade, has_issues, issue_description, supplier_value, revision_price, battery_health)
+VALUES
+    (1,  1, '358674010001001', 'SNA1001', 'ITEM-0001', 'iPhone 14 Pro',     'Space Black', 'A', FALSE, NULL,                                 799.99, 759.99, 97.0),
+    (2,  1, '358674010001002', 'SNA1002', 'ITEM-0002', 'iPhone 15',         'Blue',        'A', FALSE, NULL,                                 649.99, 619.99, 100.0),
+    (3,  1, '358674010001003', 'SNA1003', 'ITEM-0003', 'iPhone 12',         'White',       'B', TRUE,  'Light scuffing on frame',            349.99, 299.99, 89.0),
+    (4,  1, '358674010001004', 'SNA1004', 'ITEM-0004', 'iPhone 12 Pro',     'Graphite',    'B', FALSE, NULL,                                 449.99, 419.99, 91.5),
+    (5,  2, '358674010001005', 'SNA1005', 'ITEM-0005', 'iPhone 14',         'Midnight',    'B', TRUE,  'Small crack on rear glass',           499.99, 429.99, 93.0),
+    (6,  2, '358674010001006', 'SNA1006', 'ITEM-0006', 'iPhone 13 Pro Max', 'Silver',      'A', FALSE, NULL,                                 649.99, 609.99, 96.0),
+    (7,  2, '358674010001007', 'SNA1007', 'ITEM-0007', 'iPhone 12 mini',    'Green',       'C', TRUE,  'Battery health below 85%',            249.99, 189.99, 82.0),
+    (8,  2, '358674010001008', 'SNA1008', 'ITEM-0008', 'iPhone 14 Plus',    'Purple',      'B', FALSE, NULL,                                 549.99, 519.99, 94.0),
+    (9,  3, '358674010001009', 'SNA1009', 'ITEM-0009', 'iPhone 15 Pro',     'Natural Titanium', 'A', FALSE, NULL,                             899.99, 859.99, 99.0),
+    (10, 3, '358674010001010', 'SNA1010', 'ITEM-0010', 'iPhone 15 Plus',    'Black',       'A', FALSE, NULL,                                 699.99, 669.99, 98.0),
+    (11, 3, '358674010001011', 'SNA1011', 'ITEM-0011', 'iPhone 12 Pro Max', 'Pacific Blue','B', TRUE,  'Minor scratches on display',          499.99, 449.99, 88.0),
+    (12, 4, '358674010001012', 'SNA1012', 'ITEM-0012', 'iPhone 16 Pro',     'Desert Titanium', 'A', FALSE, NULL,                              999.99, 969.99, 100.0),
+    (13, 4, '358674010001013', 'SNA1013', 'ITEM-0013', 'iPhone 13 Pro Max', 'Gold',        'D', TRUE,  'Liquid damage indicators triggered',  299.99, 79.99,  NULL),
+    (14, 4, NULL,               'SNA1014', 'ITEM-0014', 'iPhone 12',        'Red',         'D', TRUE,  'Unit does not power on',              199.99, 49.99,  NULL),
+    (15, 5, '358674010001015', 'SNA1015', 'ITEM-0015', 'iPhone 15',         'Pink',        'A', FALSE, NULL,                                 649.99, 619.99, 100.0);
 
 -- ============================================================================
--- InventoryItem: Inventory tracking for devices
+-- device: physical devices identified/tested at intake
 -- ============================================================================
-insert into InventoryItem (Inv_serialNumber, Inv_grade, Inv_conditionNotes, Inv_repairsNeededDone, Inv_costPaid, Inv_repairCost, Inv_b2bFloorPrice, Inv_b2cFloorPrice, Inv_status, Inv_listedAt, Inv_reservedAt, Inv_soldAt, Inv_salePrice, Inv_saleChannel, Inv_buyerInfo, Inv_canonicalSessionId) values
+INSERT INTO device
+    (serial_number, udid, product_type, model_number, color, region_code, imei, wifi_mac, bluetooth_mac,
+     imei2, meid, iccid, baseband_serial, hardware_model, storage_gb, battery_original, screen_original,
+     activation_state, icloud_lock_status, find_my_enabled, passcode_protected, mdm_enrolled,
+     can_test, device_password, known_issues, previously_repaired,
+     batch_id, supplier_manifest_item_id, intake_at, deleted_at)
+VALUES
+    ('SNA1001', '00008110-0010A1B2C3D4001E', 'iPhone15,2', 'A2890', 'Space Black', 'US', '358674010001001', '00:1A:2B:10:00:01', '00:1E:2A:10:00:01', NULL, NULL, '8901410123456780001', 'BB-1001', 'D73AP', 256.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 1, 1,  '2024-01-15 09:10:00', NULL),
+    ('SNA1002', '00008110-0010A1B2C3D4002E', 'iPhone15,4', 'A2846', 'Blue',        'US', '358674010001002', '00:1A:2B:10:00:02', '00:1E:2A:10:00:02', NULL, NULL, '8901410123456780002', 'BB-1002', 'D74AP', 128.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 1, 2,  '2024-01-15 09:20:00', NULL),
+    ('SNA1003', '00008110-0010A1B2C3D4003E', 'iPhone13,2', 'A2172', 'White',       'US', '358674010001003', '00:1A:2B:10:00:03', '00:1E:2A:10:00:03', NULL, NULL, '8901410123456780003', 'BB-1003', 'D53gAP', 64.00, TRUE, FALSE, 'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'Frame scuffing',                   TRUE,  1, 3,  '2024-01-15 09:35:00', NULL),
+    ('SNA1004', '00008110-0010A1B2C3D4004E', 'iPhone13,3', 'A2341', 'Graphite',    'US', '358674010001004', '00:1A:2B:10:00:04', '00:1E:2A:10:00:04', NULL, NULL, '8901410123456780004', 'BB-1004', 'D53pAP',256.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 1, 4,  '2024-01-15 09:50:00', NULL),
 
-('SN001001', 'A', 'Pristine condition. All components working perfectly.', '', 949.99, 0.00, 899.99, 999.99, 'listed', '2024-02-05 10:00:00', null, null, 999.99, 'eBay', null, 1),
-('SN001002', 'A', 'Like new, no visible wear.', '', 949.99, 0.00, 899.99, 999.99, 'sold', '2024-02-05 11:00:00', '2024-02-06 09:00:00', '2024-02-08 14:30:00', 950.00, 'Local Buyer', 'John Smith', 2),
-('SN001003', 'B', 'Back glass cracked but display intact.', 'Back glass replacement needed', 499.99, 75.00, 399.99, 499.99, 'in_stock', null, null, null, null, null, null, 3),
-('SN001004', 'A', 'Excellent condition, original battery.', '', 849.99, 0.00, 799.99, 899.99, 'listed', '2024-02-06 10:00:00', null, null, 899.99, 'Amazon', null, 4),
+    ('SNA1005', '00008110-0010A1B2C3D4005E', 'iPhone14,7', 'A2882', 'Midnight',    'US', '358674010001005', '00:1A:2B:10:00:05', '00:1E:2A:10:00:05', NULL, NULL, '8901410123456780005', 'BB-1005', 'D27AP', 128.00, TRUE,  FALSE, 'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'Small crack on rear glass',        FALSE, 2, 5,  '2024-02-03 11:40:00', NULL),
+    ('SNA1006', '00008110-0010A1B2C3D4006E', 'iPhone14,3', 'A2484', 'Silver',      'US', '358674010001006', '00:1A:2B:10:00:06', '00:1E:2A:10:00:06', NULL, NULL, '8901410123456780006', 'BB-1006', 'D64AP', 256.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 2, 6,  '2024-02-03 11:55:00', NULL),
+    ('SNA1007', '00008110-0010A1B2C3D4007E', 'iPhone13,1', 'A2176', 'Green',       'US', '358674010001007', '00:1A:2B:10:00:07', '00:1E:2A:10:00:07', NULL, NULL, '8901410123456780007', 'BB-1007', 'D57AP', 64.00,  FALSE, TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'Battery health below 85%',         TRUE,  2, 7,  '2024-02-03 12:05:00', NULL),
+    ('SNA1008', '00008110-0010A1B2C3D4008E', 'iPhone14,8', 'A2886', 'Purple',      'US', '358674010001008', '00:1A:2B:10:00:08', '00:1E:2A:10:00:08', NULL, NULL, '8901410123456780008', 'BB-1008', 'D28AP', 256.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 2, 8,  '2024-02-03 12:20:00', NULL),
 
-('SN002001', 'B', 'Good condition, minor cosmetic wear.', '', 649.99, 0.00, 549.99, 649.99, 'reserved', '2024-02-06 12:00:00', '2024-02-07 10:00:00', null, null, null, 'Reserved for buyer', null),
-('SN002002', 'C', 'Battery degraded, needs replacement.', 'Battery replacement - $45', 349.99, 45.00, 249.99, 349.99, 'in_stock', null, null, null, null, null, null, 6),
-('SN002003', 'C', 'Dust in camera, otherwise functional.', 'Camera cleaning needed', 299.99, 30.00, 199.99, 299.99, 'in_stock', null, null, null, null, null, null, 7),
-('SN002004', 'D', 'Screen burn-in present, poor battery health.', 'Screen replacement - $120, Battery replacement - $45', 149.99, 165.00, null, 149.99, 'in_stock', null, null, null, null, null, null, null),
+    ('SNA1009', '00008110-0010A1B2C3D4009E', 'iPhone16,1', 'A3101', 'Natural Titanium', 'US', '358674010001009', '00:1A:2B:10:00:09', '00:1E:2A:10:00:09', NULL, NULL, '8901410123456780009', 'BB-1009', 'D83AP', 512.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No', FALSE, TRUE,  NULL,       'None reported',                    FALSE, 3, 9,  '2024-03-10 14:10:00', NULL),
+    ('SNA1010', '00008110-0010A1B2C3D400AE', 'iPhone15,5', 'A2847', 'Black',       'US', '358674010001010', '00:1A:2B:10:00:0A', '00:1E:2A:10:00:0A', NULL, NULL, '8901410123456780010', 'BB-1010', 'D75AP', 256.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 3, 10, '2024-03-10 14:25:00', NULL),
+    ('SNA1011', '00008110-0010A1B2C3D400BE', 'iPhone13,4', 'A2342', 'Pacific Blue','US', '358674010001011', '00:1A:2B:10:00:0B', '00:1E:2A:10:00:0B', NULL, NULL, '8901410123456780011', 'BB-1011', 'D54pAP',128.00, TRUE,  FALSE, 'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'Minor scratches on display',       TRUE,  3, 11, '2024-03-10 14:40:00', NULL),
 
-('SN003001', 'A', 'Perfect condition, maxed storage.', '', 1049.99, 0.00, 999.99, 1149.99, 'listed', '2024-02-07 09:00:00', null, null, 1149.99, 'eBay', null, 8),
-('SN003002', 'A', 'Like new, minimal use.', '', 949.99, 0.00, 899.99, 999.99, 'in_stock', null, null, null, null, null, null, 9),
-('SN003003', 'A', 'Excellent condition throughout.', '', 949.99, 0.00, 899.99, 999.99, 'listed', '2024-02-07 10:30:00', '2024-02-08 08:00:00', null, null, null, 'Awaiting payment', 10),
-('SN003004', 'A', 'Good condition, all tests pass.', '', 749.99, 0.00, 699.99, 799.99, 'sold', '2024-02-07 12:00:00', '2024-02-07 14:00:00', '2024-02-09 10:00:00', 750.00, 'Facebook Marketplace', 'Jane Doe', null),
+    ('SNA1012', '00008110-0010A1B2C3D400CE', 'iPhone17,1', 'A3293', 'Desert Titanium',  'US', '358674010001012', '00:1A:2B:10:00:0C', '00:1E:2A:10:00:0C', '358674010001112', NULL, '8901410123456780012', 'BB-1012', 'D93AP', 512.00, TRUE, TRUE, 'Not Activated', 'Unlocked', 'Disabled', 'No', FALSE, TRUE, NULL, 'None reported', FALSE, 4, 12, '2024-05-22 10:25:00', NULL),
+    ('SNA1013', '00008110-0010A1B2C3D400DE', 'iPhone14,3', 'A2484', 'Gold',        'US', '358674010001013', '00:1A:2B:10:00:0D', '00:1E:2A:10:00:0D', NULL, NULL, '8901410123456780013', 'BB-1013', 'D64AP', 256.00, TRUE,  FALSE, 'Unknown', 'Unknown', 'Unknown', 'Unknown', FALSE, FALSE, NULL, 'Liquid damage indicators triggered, does not reliably power on', FALSE, 4, 13, '2024-05-22 10:40:00', '2024-06-01 09:00:00'),
+    ('SNA1014', '00008110-0010A1B2C3D400EE', 'iPhone13,2', 'A2172', 'Red',         'US', '358674010001014', '00:1A:2B:10:00:0E', '00:1E:2A:10:00:0E', NULL, NULL, '8901410123456780014', 'BB-1014', 'D53gAP', 64.00, TRUE, TRUE, 'Unknown', 'Unknown', 'Unknown', 'Unknown', FALSE, FALSE, NULL, 'Unit does not power on', FALSE, 4, 14, '2024-05-22 10:55:00', NULL),
 
-('SN004001', 'B', 'Clean condition, minor scratches on back.', '', 549.99, 0.00, 449.99, 549.99, 'in_stock', null, null, null, null, null, null, null),
-('SN004002', 'B', 'Very good condition, minimal wear.', '', 549.99, 0.00, 449.99, 549.99, 'listed', '2024-02-08 09:00:00', null, null, 549.99, 'eBay', null, null),
-('SN004003', 'C', 'Frame scratch visible, screen OK.', 'Frame repair or replacement', 349.99, 60.00, 249.99, 349.99, 'in_stock', null, null, null, null, null, null, null),
+    ('SNA1015', '00008110-0010A1B2C3D400FE', 'iPhone15,4', 'A2846', 'Pink',        'US', '358674010001015', '00:1A:2B:10:00:0F', '00:1E:2A:10:00:0F', NULL, NULL, '8901410123456780015', 'BB-1015', 'D74AP', 128.00, TRUE,  TRUE,  'Not Activated', 'Unlocked', 'Disabled', 'No',  FALSE, TRUE,  NULL,       'None reported',                    FALSE, 5, 15, '2024-07-14 08:50:00', NULL);
 
-('SN005001', 'D', 'Cracked screen, dead battery, needs repair.', 'Screen + Battery replacement - $165', 99.99, 165.00, null, 199.99, 'in_stock', null, null, null, null, null, null, null),
-('SN005002', 'D', 'Liquid damage indicators present.', 'Full diagnostic and repair needed', 99.99, 0.00, null, 149.99, 'in_stock', null, null, null, null, null, null, null);
+-- ============================================================================
+-- diagnostic_session: one completed test session per testable device
+-- (SNA1013, SNA1014, SNA1015 have not been tested yet)
+-- ============================================================================
+INSERT INTO diagnostic_session
+    (id, serial_number, technician, ios_version, build_version, baseband_version,
+     battery_pct, battery_health_pct, battery_cycles, battery_temp_c, battery_impedance_mohm, battery_serial, is_charging,
+     data_capacity_gb, data_available_gb, count_pass, count_fail, count_na, count_pending,
+     started_at, ended_at, elapsed_seconds)
+VALUES
+    (1,  'SNA1001', 'John Ramirez', '18.1', '22B83', '4.10.01', 82, 97.0, 58,  27.4, 34, 'BATT-SNA1001', TRUE, 256.00, 198.30, 8, 0, 0, 0, '2024-01-16 10:00:00', '2024-01-16 10:14:00', 840),
+    (2,  'SNA1002', 'John Ramirez', '18.1', '22B83', '4.10.01', 91, 100.0, 3,   26.8, 28, 'BATT-SNA1002', TRUE, 128.00, 121.10, 8, 0, 0, 0, '2024-01-16 10:20:00', '2024-01-16 10:33:00', 780),
+    (3,  'SNA1003', 'John Ramirez', '17.6', '21G93', '3.60.02', 64, 89.0, 412, 29.1, 51, 'BATT-SNA1003', TRUE, 64.00,  40.20,  6, 2, 0, 0, '2024-01-16 10:45:00', '2024-01-16 11:02:00', 1020),
+    (4,  'SNA1004', 'John Ramirez', '17.6', '21G93', '3.60.02', 88, 91.5, 231, 27.9, 40, 'BATT-SNA1004', TRUE, 256.00, 210.75, 8, 0, 0, 0, '2024-01-16 11:15:00', '2024-01-16 11:29:00', 840),
+
+    (5,  'SNA1005', 'Sarah Lee',    '18.0', '22A3354', '4.05.10', 77, 93.0, 189, 28.2, 37, 'BATT-SNA1005', TRUE, 128.00, 95.60,  7, 1, 0, 0, '2024-02-04 09:00:00', '2024-02-04 09:16:00', 960),
+    (6,  'SNA1006', 'Sarah Lee',    '17.5', '21F90', '3.50.05', 85, 96.0, 96,  26.5, 31, 'BATT-SNA1006', TRUE, 256.00, 188.40, 8, 0, 0, 0, '2024-02-04 09:25:00', '2024-02-04 09:39:00', 840),
+    (7,  'SNA1007', 'Sarah Lee',    '16.7', '20H19', '2.80.01', 55, 82.0, 601, 30.0, 63, 'BATT-SNA1007', TRUE, 64.00,  22.10,  5, 3, 0, 0, '2024-02-04 09:50:00', '2024-02-04 10:09:00', 1140),
+    (8,  'SNA1008', 'Sarah Lee',    '18.0', '22A3354', '4.05.10', 90, 94.0, 142, 27.0, 33, 'BATT-SNA1008', TRUE, 256.00, 201.90, 8, 0, 0, 0, '2024-02-04 10:20:00', '2024-02-04 10:34:00', 840),
+
+    (9,  'SNA1009', 'John Ramirez', '18.2', '22C150', '4.20.00', 96, 99.0, 5,   26.2, 27, 'BATT-SNA1009', TRUE, 512.00, 470.00, 8, 0, 0, 0, '2024-03-11 13:00:00', '2024-03-11 13:13:00', 780),
+    (10, 'SNA1010', 'John Ramirez', '18.2', '22C150', '4.20.00', 89, 98.0, 12,  26.6, 29, 'BATT-SNA1010', TRUE, 256.00, 240.10, 8, 0, 0, 0, '2024-03-11 13:25:00', '2024-03-11 13:38:00', 780),
+    (11, 'SNA1011', 'John Ramirez', '17.6', '21G93', '3.60.02', 71, 88.0, 268, 28.7, 42, 'BATT-SNA1011', TRUE, 128.00, 88.50,  7, 1, 0, 0, '2024-03-11 13:50:00', '2024-03-11 14:07:00', 1020),
+
+    (12, 'SNA1012', 'Mike Chen',    '18.3', '22D8073', '4.30.00', 100, 100.0, 0, 25.9, 25, 'BATT-SNA1012', TRUE, 512.00, 505.00, 8, 0, 0, 0, '2024-05-23 08:30:00', '2024-05-23 08:42:00', 720);
+
+-- ============================================================================
+-- test_result: individual diagnostic checks per session
+-- ============================================================================
+INSERT INTO test_result (session_id, test_id, test_label, test_group, status, source) VALUES
+    -- SNA1001 - all pass
+    (1, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (1, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (1, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (1, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (1, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (1, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (1, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (1, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1002 - all pass
+    (2, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (2, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (2, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (2, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (2, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (2, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (2, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (2, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1003 - display touch and speaker failing (matches frame scuffing / age)
+    (3, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (3, 'DISPLAY',        'Display & Touch',  'screen',       'fail', 'manual'),
+    (3, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (3, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (3, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (3, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (3, 'SPEAKER',        'Speaker',          'audio',        'fail', 'manual'),
+    (3, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1004 - all pass
+    (4, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (4, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (4, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (4, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (4, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (4, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (4, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (4, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1005 - rear camera failing (cracked rear glass)
+    (5, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (5, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (5, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (5, 'REAR_CAMERA',    'Rear Camera',      'camera',       'fail', 'manual'),
+    (5, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (5, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (5, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (5, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1006 - all pass
+    (6, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (6, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (6, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (6, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (6, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (6, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (6, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (6, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1007 - old worn unit, several failures
+    (7, 'BATTERY_HEALTH', 'Battery Health',   'power',        'fail', 'syslog'),
+    (7, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (7, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (7, 'REAR_CAMERA',    'Rear Camera',      'camera',       'fail', 'manual'),
+    (7, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (7, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (7, 'SPEAKER',        'Speaker',          'audio',        'fail', 'manual'),
+    (7, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1008 - all pass
+    (8, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (8, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (8, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (8, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (8, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (8, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (8, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (8, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1009 - all pass
+    (9, 'BATTERY_HEALTH', 'Battery Health',   'power',        'pass', 'syslog'),
+    (9, 'DISPLAY',        'Display & Touch',  'screen',       'pass', 'syslog'),
+    (9, 'FRONT_CAMERA',   'Front Camera',     'camera',       'pass', 'syslog'),
+    (9, 'REAR_CAMERA',    'Rear Camera',      'camera',       'pass', 'syslog'),
+    (9, 'WIFI',           'Wi-Fi',            'connectivity', 'pass', 'syslog'),
+    (9, 'BLUETOOTH',      'Bluetooth',        'connectivity', 'pass', 'syslog'),
+    (9, 'SPEAKER',        'Speaker',          'audio',        'pass', 'manual'),
+    (9, 'FACE_ID',        'Face ID',          'biometric',    'pass', 'manual'),
+
+    -- SNA1010 - all pass
+    (10, 'BATTERY_HEALTH', 'Battery Health',  'power',        'pass', 'syslog'),
+    (10, 'DISPLAY',        'Display & Touch', 'screen',       'pass', 'syslog'),
+    (10, 'FRONT_CAMERA',   'Front Camera',    'camera',       'pass', 'syslog'),
+    (10, 'REAR_CAMERA',    'Rear Camera',     'camera',       'pass', 'syslog'),
+    (10, 'WIFI',           'Wi-Fi',           'connectivity', 'pass', 'syslog'),
+    (10, 'BLUETOOTH',      'Bluetooth',       'connectivity', 'pass', 'syslog'),
+    (10, 'SPEAKER',        'Speaker',         'audio',        'pass', 'manual'),
+    (10, 'FACE_ID',        'Face ID',         'biometric',    'pass', 'manual'),
+
+    -- SNA1011 - display has minor scratches, marked fail
+    (11, 'BATTERY_HEALTH', 'Battery Health',  'power',        'pass', 'syslog'),
+    (11, 'DISPLAY',        'Display & Touch', 'screen',       'fail', 'manual'),
+    (11, 'FRONT_CAMERA',   'Front Camera',    'camera',       'pass', 'syslog'),
+    (11, 'REAR_CAMERA',    'Rear Camera',     'camera',       'pass', 'syslog'),
+    (11, 'WIFI',           'Wi-Fi',           'connectivity', 'pass', 'syslog'),
+    (11, 'BLUETOOTH',      'Bluetooth',       'connectivity', 'pass', 'syslog'),
+    (11, 'SPEAKER',        'Speaker',         'audio',        'pass', 'manual'),
+    (11, 'FACE_ID',        'Face ID',         'biometric',    'pass', 'manual'),
+
+    -- SNA1012 - all pass, flagship unit
+    (12, 'BATTERY_HEALTH', 'Battery Health',  'power',        'pass', 'syslog'),
+    (12, 'DISPLAY',        'Display & Touch', 'screen',       'pass', 'syslog'),
+    (12, 'FRONT_CAMERA',   'Front Camera',    'camera',       'pass', 'syslog'),
+    (12, 'REAR_CAMERA',    'Rear Camera',     'camera',       'pass', 'syslog'),
+    (12, 'WIFI',           'Wi-Fi',           'connectivity', 'pass', 'syslog'),
+    (12, 'BLUETOOTH',      'Bluetooth',       'connectivity', 'pass', 'syslog'),
+    (12, 'SPEAKER',        'Speaker',         'audio',        'pass', 'manual'),
+    (12, 'FACE_ID',        'Face ID',         'biometric',    'pass', 'manual');
+
+-- ============================================================================
+-- inventory_item: sellable stock derived from graded/tested devices
+-- SNA1013 goes straight to scrap without a diagnostic session (liquid damage)
+-- SNA1014 was soft-deleted and never entered inventory
+-- SNA1015 has not been graded yet
+-- ============================================================================
+INSERT INTO inventory_item
+    (serial_number, grade, condition_notes, repairs_needed_done, cost_paid, repair_cost,
+     b2b_floor_price, b2c_floor_price, status, reserved_at, sold_at, sale_price, sale_channel, buyer_info,
+     canonical_session_id)
+VALUES
+    ('SNA1001', 'A',     'Excellent condition, no visible wear',        NULL,                              759.99, 0.00,   820.00, 899.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              1),
+    ('SNA1002', 'A',     'Like new',                                    NULL,                              619.99, 0.00,   680.00, 749.99, 'listed',   NULL,                  NULL,                  NULL,    'B2C Store',   NULL,                              2),
+    ('SNA1003', 'C',     'Display digitizer replaced, frame scuffing',  'Replaced digitizer, new speaker',  299.99, 65.00,  340.00, 389.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              3),
+    ('SNA1004', 'A',     'Excellent condition',                         NULL,                              419.99, 0.00,   470.00, 519.99, 'sold',     NULL,                  '2024-02-20 15:32:00', 549.99,  'B2C Store',   'Order #10432, e.reyes@example.com', 4),
+    ('SNA1005', 'B',     'Rear camera glass replaced',                  'Replaced rear camera assembly',    429.99, 45.00,  470.00, 519.99, 'reserved', '2024-07-20 09:15:00', NULL,                  NULL,    NULL,          'Reserved for wholesale order #WS-771', 5),
+    ('SNA1006', 'A',     'Excellent condition',                         NULL,                              609.99, 0.00,   660.00, 719.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              6),
+    ('SNA1007', 'Parts', 'Failed battery and speaker, sold for parts',  NULL,                              189.99, 0.00,   60.00,  NULL,   'listed',   NULL,                  NULL,                  NULL,    'B2B Wholesale', NULL,                            7),
+    ('SNA1008', 'A',     'Excellent condition',                         NULL,                              519.99, 0.00,   570.00, 619.99, 'sold',     NULL,                  '2024-03-02 12:05:00', 649.99,  'B2C Store',   'Order #10501, m.patel@example.com', 8),
+    ('SNA1009', 'A',     'Excellent condition, flagship unit',          NULL,                              859.99, 0.00,   930.00, 999.99, 'listed',   NULL,                  NULL,                  NULL,    'B2C Store',   NULL,                              9),
+    ('SNA1010', 'A',     'Excellent condition',                         NULL,                              669.99, 0.00,   730.00, 799.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              10),
+    ('SNA1011', 'B',     'Display has minor scratches',                 NULL,                              449.99, 0.00,   490.00, 539.99, 'returned', NULL,                  '2024-04-01 09:00:00', 529.99,  'B2C Store',   'Returned - buyer changed mind (Order #10555)', 11),
+    ('SNA1012', 'A',     'Excellent condition, flagship unit',          NULL,                              969.99, 0.00,   1050.00,1149.99,'sold',     NULL,                  '2024-06-10 16:45:00', 1199.99, 'B2C Store',   'Order #10688, t.nguyen@example.com', 12),
+    ('SNA1013', 'Scrap', 'Liquid damage, does not power on, unrepairable', NULL,                            79.99,  0.00,   0.00,   NULL,   'scrapped', NULL,                  NULL,                  NULL,    NULL,          NULL,                              NULL);

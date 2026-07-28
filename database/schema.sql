@@ -196,16 +196,8 @@ CREATE INDEX idx_result_test_id    ON test_result (test_id, status);
 CREATE INDEX idx_manifest_serial   ON supplier_manifest_item (serial_number);
 
 -- Migrations from schema edits
-ALTER TABLE device ADD COLUMN imei2            VARCHAR(20);
-ALTER TABLE device ADD COLUMN meid             VARCHAR(20);
-ALTER TABLE device ADD COLUMN iccid            VARCHAR(22);
-ALTER TABLE device ADD COLUMN baseband_serial  VARCHAR(32);
-ALTER TABLE device ADD COLUMN hardware_model   VARCHAR(16);
-
-ALTER TABLE supplier_manifest_item ADD COLUMN imei             VARCHAR(20);
-ALTER TABLE supplier_manifest_item ADD COLUMN supplier_item_id VARCHAR(64);
-ALTER TABLE supplier_manifest_item MODIFY COLUMN serial_number VARCHAR(32) NULL;
-ALTER TABLE supplier_manifest_item ADD UNIQUE KEY uq_manifest_imei (batch_id, imei);
-ALTER TABLE supplier_manifest_item DROP INDEX uq_manifest_serial;
-
+-- (imei2/meid/iccid/baseband_serial/hardware_model on device, and
+--  imei/supplier_item_id/nullable serial_number/uq_manifest_imei on
+--  supplier_manifest_item, have already been folded into the CREATE TABLE
+--  statements above)
 ALTER TABLE device ADD COLUMN deleted_at DATETIME NULL DEFAULT NULL;
