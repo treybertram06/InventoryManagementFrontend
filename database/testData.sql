@@ -4,6 +4,7 @@
 USE phone_inventory;
 
 SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE sale;
 TRUNCATE TABLE test_result;
 TRUNCATE TABLE inventory_item;
 TRUNCATE TABLE diagnostic_session;
@@ -265,19 +266,31 @@ INSERT INTO test_result (session_id, test_id, test_label, test_group, status, so
 -- ============================================================================
 INSERT INTO inventory_item
     (serial_number, grade, condition_notes, repairs_needed_done, cost_paid, repair_cost,
-     b2b_floor_price, b2c_floor_price, status, reserved_at, sold_at, sale_price, sale_channel, buyer_info,
+     b2b_floor_price, b2c_floor_price, status, reserved_at, listing_channel, reservation_notes,
      canonical_session_id)
 VALUES
-    ('SNA1001', 'A',     'Excellent condition, no visible wear',        NULL,                              759.99, 0.00,   820.00, 899.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              1),
-    ('SNA1002', 'A',     'Like new',                                    NULL,                              619.99, 0.00,   680.00, 749.99, 'listed',   NULL,                  NULL,                  NULL,    'B2C Store',   NULL,                              2),
-    ('SNA1003', 'C',     'Display digitizer replaced, frame scuffing',  'Replaced digitizer, new speaker',  299.99, 65.00,  340.00, 389.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              3),
-    ('SNA1004', 'A',     'Excellent condition',                         NULL,                              419.99, 0.00,   470.00, 519.99, 'sold',     NULL,                  '2024-02-20 15:32:00', 549.99,  'B2C Store',   'Order #10432, e.reyes@example.com', 4),
-    ('SNA1005', 'B',     'Rear camera glass replaced',                  'Replaced rear camera assembly',    429.99, 45.00,  470.00, 519.99, 'reserved', '2024-07-20 09:15:00', NULL,                  NULL,    NULL,          'Reserved for wholesale order #WS-771', 5),
-    ('SNA1006', 'A',     'Excellent condition',                         NULL,                              609.99, 0.00,   660.00, 719.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              6),
-    ('SNA1007', 'Parts', 'Failed battery and speaker, sold for parts',  NULL,                              189.99, 0.00,   60.00,  NULL,   'listed',   NULL,                  NULL,                  NULL,    'B2B Wholesale', NULL,                            7),
-    ('SNA1008', 'A',     'Excellent condition',                         NULL,                              519.99, 0.00,   570.00, 619.99, 'sold',     NULL,                  '2024-03-02 12:05:00', 649.99,  'B2C Store',   'Order #10501, m.patel@example.com', 8),
-    ('SNA1009', 'A',     'Excellent condition, flagship unit',          NULL,                              859.99, 0.00,   930.00, 999.99, 'listed',   NULL,                  NULL,                  NULL,    'B2C Store',   NULL,                              9),
-    ('SNA1010', 'A',     'Excellent condition',                         NULL,                              669.99, 0.00,   730.00, 799.99, 'in_stock', NULL,                  NULL,                  NULL,    NULL,          NULL,                              10),
-    ('SNA1011', 'B',     'Display has minor scratches',                 NULL,                              449.99, 0.00,   490.00, 539.99, 'returned', NULL,                  '2024-04-01 09:00:00', 529.99,  'B2C Store',   'Returned - buyer changed mind (Order #10555)', 11),
-    ('SNA1012', 'A',     'Excellent condition, flagship unit',          NULL,                              969.99, 0.00,   1050.00,1149.99,'sold',     NULL,                  '2024-06-10 16:45:00', 1199.99, 'B2C Store',   'Order #10688, t.nguyen@example.com', 12),
-    ('SNA1013', 'Scrap', 'Liquid damage, does not power on, unrepairable', NULL,                            79.99,  0.00,   0.00,   NULL,   'scrapped', NULL,                  NULL,                  NULL,    NULL,          NULL,                              NULL);
+    ('SNA1001', 'A',     'Excellent condition, no visible wear',        NULL,                              759.99, 0.00,   820.00, 899.99, 'in_stock', NULL,                  NULL,            NULL, 1),
+    ('SNA1002', 'A',     'Like new',                                    NULL,                              619.99, 0.00,   680.00, 749.99, 'listed',   NULL,                  'B2C Store',     NULL, 2),
+    ('SNA1003', 'C',     'Display digitizer replaced, frame scuffing',  'Replaced digitizer, new speaker',  299.99, 65.00,  340.00, 389.99, 'in_stock', NULL,                  NULL,            NULL, 3),
+    ('SNA1004', 'A',     'Excellent condition',                         NULL,                              419.99, 0.00,   470.00, 519.99, 'sold',     NULL,                  NULL,            NULL, 4),
+    ('SNA1005', 'B',     'Rear camera glass replaced',                  'Replaced rear camera assembly',    429.99, 45.00,  470.00, 519.99, 'reserved', '2024-07-20 09:15:00', NULL,            'Reserved for wholesale order #WS-771', 5),
+    ('SNA1006', 'A',     'Excellent condition',                         NULL,                              609.99, 0.00,   660.00, 719.99, 'in_stock', NULL,                  NULL,            NULL, 6),
+    ('SNA1007', 'Parts', 'Failed battery and speaker, sold for parts',  NULL,                              189.99, 0.00,   60.00,  NULL,   'listed',   NULL,                  'B2B Wholesale', NULL, 7),
+    ('SNA1008', 'A',     'Excellent condition',                         NULL,                              519.99, 0.00,   570.00, 619.99, 'sold',     NULL,                  NULL,            NULL, 8),
+    ('SNA1009', 'A',     'Excellent condition, flagship unit',          NULL,                              859.99, 0.00,   930.00, 999.99, 'listed',   NULL,                  'B2C Store',     NULL, 9),
+    ('SNA1010', 'A',     'Excellent condition',                         NULL,                              669.99, 0.00,   730.00, 799.99, 'in_stock', NULL,                  NULL,            NULL, 10),
+    ('SNA1011', 'B',     'Display has minor scratches',                 NULL,                              449.99, 0.00,   490.00, 539.99, 'returned', NULL,                  NULL,            NULL, 11),
+    ('SNA1012', 'A',     'Excellent condition, flagship unit',          NULL,                              969.99, 0.00,   1050.00,1149.99,'sold',     NULL,                  NULL,            NULL, 12),
+    ('SNA1013', 'Scrap', 'Liquid damage, does not power on, unrepairable', NULL,                            79.99,  0.00,   0.00,   NULL,   'scrapped', NULL,                  NULL,            NULL, NULL);
+
+-- ============================================================================
+-- sale: completed (and one reversed) transactions
+-- user ids: 1 = admin, 2 = john.ramirez, 3 = sarah.lee, 4 = mike.chen
+-- ============================================================================
+INSERT INTO sale
+    (serial_number, technician_id, sale_price, sale_channel, buyer_info, sold_at, reversed_at, reversed_by_id, notes)
+VALUES
+    ('SNA1004', 2, 549.99,  'B2C Store', 'Order #10432, e.reyes@example.com',  '2024-02-20 15:32:00', NULL,                  NULL, NULL),
+    ('SNA1008', 3, 649.99,  'B2C Store', 'Order #10501, m.patel@example.com',  '2024-03-02 12:05:00', NULL,                  NULL, NULL),
+    ('SNA1012', 4, 1199.99, 'B2C Store', 'Order #10688, t.nguyen@example.com', '2024-06-10 16:45:00', NULL,                  NULL, NULL),
+    ('SNA1011', 3, 529.99,  'B2C Store', 'Order #10555',                       '2024-04-01 09:00:00', '2024-04-05 10:20:00', 1,    'Buyer changed mind');

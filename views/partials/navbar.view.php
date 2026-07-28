@@ -29,6 +29,12 @@
                         </a>
                     </li>
 
+                    <li>
+                        <a class="text-text-muted transition hover:text-text-muted/75 dark:text-white dark:hover:text-white/75" href="/sales-history">
+                            Sales History
+                        </a>
+                    </li>
+
                     <?php if ($currentUser && $currentUser->role === Models\UserRole::Admin): ?>
                         <li>
                             <a class="text-text-muted transition hover:text-text-muted/75 dark:text-white dark:hover:text-white/75" href="/admin">

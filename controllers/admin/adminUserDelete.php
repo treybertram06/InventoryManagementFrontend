@@ -23,6 +23,10 @@ if (empty($errors) && $target->role === Models\UserRole::Admin) {
     }
 }
 
+if (empty($errors) && $db->user_has_sale_records($userId)) {
+    $errors[] = "Cannot delete this user: they have sale records on file (as the processing or reversing technician).";
+}
+
 if (!empty($errors)) {
     view('admin.view.php', array_merge(
         ['currentUser' => $user, 'userErrors' => $errors],

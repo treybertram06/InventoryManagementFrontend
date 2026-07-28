@@ -171,11 +171,9 @@ CREATE TABLE IF NOT EXISTS inventory_item (
     status                  ENUM('in_stock','listed','reserved','sold','returned','scrapped')
                                             NOT NULL DEFAULT 'in_stock',
     listed_aEt               DATETIME,
+    listing_channel         VARCHAR(64), -- where this item is listed while status = 'listed'/'reserved'; a completed sale's actual channel lives on the `sale` row
     reserved_at             DATETIME,
-    sold_at                 DATETIME,
-    sale_price              DECIMAL(8,2),
-    sale_channel            VARCHAR(64),
-    buyer_info              VARCHAR(256),
+    reservation_notes       VARCHAR(256), -- notes while status = 'reserved'; completed-sale detail lives in the `sale` table
 
     canonical_session_id    INT,
 
@@ -188,12 +186,34 @@ CREATE TABLE IF NOT EXISTS inventory_item (
     FOREIGN KEY (canonical_session_id)  REFERENCES diagnostic_session (id)
 );
 
+CREATE TABLE IF NOT EXISTS sale (
+    id                  INT             NOT NULL AUTO_INCREMENT,
+    serial_number       VARCHAR(32)     NOT NULL,
+    technician_id       INT             NOT NULL, -- staff who processed the sale
+    sale_price          DECIMAL(8,2)    NOT NULL,
+    sale_channel        VARCHAR(64),
+    buyer_info          VARCHAR(256),
+    sold_at             DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP, -- may be backdated by an admin
+    reversed_at         DATETIME,
+    reversed_by_id      INT, -- admin who reversed the sale
+    notes               TEXT, -- optional, e.g. reason for a backdated entry or reversal
+    created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id),
+    FOREIGN KEY (serial_number) REFERENCES device (serial_number),
+    FOREIGN KEY (technician_id)  REFERENCES user (id), -- no ON DELETE clause: defaults to RESTRICT, a user who has processed a sale cannot be deleted
+    FOREIGN KEY (reversed_by_id) REFERENCES user (id)  -- same: a user who has reversed a sale cannot be deleted
+);
+
 CREATE INDEX idx_session_serial   ON diagnostic_session (serial_number);
 CREATE INDEX idx_inventory_status  ON inventory_item (status);
 CREATE INDEX idx_inventory_grade   ON inventory_item (grade);
 CREATE INDEX idx_device_batch      ON device (batch_id);
 CREATE INDEX idx_result_test_id    ON test_result (test_id, status);
 CREATE INDEX idx_manifest_serial   ON supplier_manifest_item (serial_number);
+CREATE INDEX idx_sale_serial       ON sale (serial_number);
+CREATE INDEX idx_sale_sold_at      ON sale (sold_at);
+CREATE INDEX idx_sale_technician   ON sale (technician_id);
 
 -- Migrations from schema edits
 -- (imei2/meid/iccid/baseband_serial/hardware_model on device, and
