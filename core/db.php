@@ -321,7 +321,20 @@ class Database {
         ");
         return $stmt->execute($data);
     }
+        public function complete_sale(array $data): bool {
+            $stmt = $this->pdo->prepare("
+                UPDATE inventory_item
+                SET
+                    status = 'sold',
+                    sale_price = :sale_price,
+                    sale_channel = :sale_channel,
+                    buyer_info = :buyer_info,
+                    sold_at = NOW()
+                WHERE serial_number = :serial_number
+            ");
 
+            return $stmt->execute($data);
+        }
     public function reverse_sale($serialNumber): bool {
         $stmt = $this->pdo->prepare("
             UPDATE inventory_item

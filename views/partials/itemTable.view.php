@@ -67,6 +67,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                     ['label' => 'IMEI',               'type' => 'text'],
                     ['label' => 'Cost',               'type' => 'number'],
                     ['label' => 'Suggested Price',    'type' => 'number'],
+                    ['label' => 'Status',             'type' => 'text'],
                     ['label' => 'Batch',              'type' => 'text'],
                     ['label' => 'Actions',            'type' => 'text'],
                 ];
@@ -107,8 +108,26 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                     <td id="cost-column" class="px-4 py-3 text-sm whitespace-nowrap text-text dark:text-white">
                         <?= $device->costPaid !== null ? '$' . number_format($device->costPaid, 2) : '—' ?>
                     </td>
-                    <td id="suggested-price-column" class="px-4 py-3 text-sm whitespace-nowrap text-text dark:text-white">—</td>
-                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->batchNumber) ?></td>
+                    <td id="suggested-price-column" class="px-4 py-3 text-sm whitespace-nowrap text-text dark:text-white">
+                        —
+                    </td>
+
+                    <td class="px-4 py-3 text-sm whitespace-nowrap">
+                        <?php
+                            $status = $device->status;
+                            $badgeClass = in_array($status, $activeStatuses)
+                                ? $activeBadge
+                                : $inactiveBadge;
+                        ?>
+
+                        <span class="rounded-full px-2 py-1 text-xs font-medium <?= $badgeClass ?>">
+                            <?= htmlspecialchars($statusLabels[$status] ?? ucfirst($status)) ?>
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70">
+                        <?= htmlspecialchars($device->batchNumber) ?>
+                    </td>
                     <td class="px-4 py-3 text-sm whitespace-nowrap">
                         <a href="/device?serial=<?= urlencode($device->serialNumber) ?>"
                         class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
@@ -125,6 +144,15 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                             class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
                                 Edit
                             </a>
+
+                            <?php if ($device->status !== 'sold'): ?>
+
+                            <a href="/device-sale?serial=<?= urlencode($device->serialNumber) ?>"
+                            class="mr-3 font-medium text-green-600 hover:underline dark:text-green-400">
+                                Sell
+                            </a>
+
+                        <?php endif; ?>
 
                             <form method="POST" action="/device-delete" class="inline" onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
                                 <input type="hidden" name="serial_number" value="<?= htmlspecialchars($device->serialNumber) ?>">

@@ -68,17 +68,48 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             </div>
         </div>
         <div class="flex gap-2">
-            <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>" class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover">
-                Run Test
-            </a>
-            <?php if ($isAdmin): ?>
-                <form method="POST" action="/device-delete" onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
-                    <input type="hidden" name="serial_number" value="<?= htmlspecialchars($device->serialNumber) ?>">
-                    <button type="submit" class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
+
+                <a href="/device-test?serial=<?= urlencode($device->serialNumber) ?>"
+                class="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-primary-hover">
+                    Run Test
+                </a>
+
+                <?php if ($isAdmin && $device->status === 'sold'): ?>
+                    <form method="POST"
+                        action="/device-unsell"
+                        onsubmit="return confirm('Mark this device back as In Stock?');">
+
+                        <input
+                            type="hidden"
+                            name="serial_number"
+                            value="<?= htmlspecialchars($device->serialNumber) ?>">
+
+                        <button
+                            type="submit"
+                            class="rounded-md bg-yellow-600 px-4 py-2 text-sm font-medium text-white hover:bg-yellow-700">
+                            Undo Sale
+                        </button>
+
+                    </form>
+                <?php endif; ?>
+
+                <?php if ($isAdmin): ?>
+                <form method="POST"
+                    action="/device-delete"
+                    onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
+
+                    <input type="hidden"
+                        name="serial_number"
+                        value="<?= htmlspecialchars($device->serialNumber) ?>">
+
+                    <button type="submit"
+                            class="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-700">
                         Delete
                     </button>
+
                 </form>
             <?php endif; ?>
+
         </div>
     </div>
 
@@ -116,9 +147,19 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                 <?php field('B2B Floor Price', fmt_money($device->b2bFloorPrice), $labelClasses, $valueClasses); ?>
                 <?php field('B2C Floor Price', fmt_money($device->b2cFloorPrice), $labelClasses, $valueClasses); ?>
                 <?php if ($device->status === 'sold'): ?>
-                    <?php field('Sale Price', fmt_money($device->salePrice), $labelClasses, $valueClasses); ?>
-                    <?php field('Sale Channel', fmt($device->saleChannel), $labelClasses, $valueClasses); ?>
+                <?php field('Sale Price', fmt_money($device->salePrice), $labelClasses, $valueClasses); ?>
+                <?php field('Sale Channel', fmt($device->saleChannel), $labelClasses, $valueClasses); ?>
+                <?php field('Buyer Information', fmt($device->buyerInfo), $labelClasses, $valueClasses); ?>
+
+                <?php if ($device->soldAt): ?>
+                    <?php field(
+                        'Sold At',
+                        $device->soldAt->format('M j, Y g:i A'),
+                        $labelClasses,
+                        $valueClasses
+                    ); ?>
                 <?php endif; ?>
+            <?php endif; ?>
             </div>
         </div>
 
