@@ -58,7 +58,7 @@ class Database {
 
     // --- User ---
     public function get_all_users(): array | null {
-        $stmt = $this->pdo->prepare("SELECT * FROM User");
+        $stmt = $this->pdo->prepare("SELECT * FROM user");
         $stmt->execute();
         $data = $stmt->fetchAll();
 
