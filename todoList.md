@@ -9,9 +9,12 @@
   - More thorough filters
 - Sales history and reporting page
   - Sales statistics and whatnot
+
+Done:
 - Admin dashboard
   - User management
   - Manual data editing
   - Sale reversal
 - Home page
   - Update to display real-time data once everything else is done
+  - Sale reversal

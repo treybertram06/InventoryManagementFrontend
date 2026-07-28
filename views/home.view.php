@@ -9,6 +9,10 @@
 /** @var Device[] $recentIntakes */
 /** @var Device[] $needsAttention */
 /** @var array<string,int> $statusCounts */
+/** @var int $salesThisMonth */
+/** @var float $revenueThisMonth */
+/** @var string|null $topSellingModel */
+/** @var int $topSellingModelCount */
 
 $statusLabels = [
     'in_stock' => 'In Stock',
@@ -23,7 +27,6 @@ $inStock = $statusCounts['in_stock'] ?? 0;
 $sold = $statusCounts['sold'] ?? 0;
 
 $cardClasses = 'rounded-md border border-text-muted/20 bg-surface p-5 shadow-sm dark:bg-surface-dark';
-$placeholderCardClasses = 'rounded-md border border-dashed border-text-muted/30 bg-surface/50 p-5 dark:bg-surface-dark/50';
 ?>
 
 <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -67,22 +70,25 @@ $placeholderCardClasses = 'rounded-md border border-dashed border-text-muted/30 
         </div>
     </div>
 
-    <!-- Placeholder stats: sales module not built yet -->
+    <!-- Sales stats -->
     <div class="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <div class="<?= $placeholderCardClasses ?>">
+        <div class="<?= $cardClasses ?>">
             <p class="text-sm text-text-muted dark:text-white/70">Sales This Month</p>
-            <p class="mt-2 text-3xl font-bold text-text-muted/50 dark:text-white/30">&mdash;</p>
-            <p class="mt-1 text-xs text-text-muted/70 dark:text-white/50">Coming soon</p>
+            <p class="mt-2 text-3xl font-bold text-text dark:text-white"><?= $salesThisMonth ?></p>
         </div>
-        <div class="<?= $placeholderCardClasses ?>">
+        <div class="<?= $cardClasses ?>">
             <p class="text-sm text-text-muted dark:text-white/70">Revenue This Month</p>
-            <p class="mt-2 text-3xl font-bold text-text-muted/50 dark:text-white/30">&mdash;</p>
-            <p class="mt-1 text-xs text-text-muted/70 dark:text-white/50">Coming soon</p>
+            <p class="mt-2 text-3xl font-bold text-text dark:text-white">$<?= number_format($revenueThisMonth, 2) ?></p>
         </div>
-        <div class="<?= $placeholderCardClasses ?> col-span-2">
+        <div class="<?= $cardClasses ?> col-span-2">
             <p class="text-sm text-text-muted dark:text-white/70">Top Selling Model</p>
-            <p class="mt-2 text-3xl font-bold text-text-muted/50 dark:text-white/30">&mdash;</p>
-            <p class="mt-1 text-xs text-text-muted/70 dark:text-white/50">Coming soon</p>
+            <?php if ($topSellingModel !== null): ?>
+                <p class="mt-2 text-3xl font-bold text-text dark:text-white"><?= htmlspecialchars($topSellingModel) ?></p>
+                <p class="mt-1 text-xs text-text-muted/70 dark:text-white/50"><?= $topSellingModelCount ?> sold all-time</p>
+            <?php else: ?>
+                <p class="mt-2 text-3xl font-bold text-text-muted/50 dark:text-white/30">&mdash;</p>
+                <p class="mt-1 text-xs text-text-muted/70 dark:text-white/50">No sales yet</p>
+            <?php endif; ?>
         </div>
     </div>
 
