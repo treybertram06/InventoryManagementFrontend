@@ -6,6 +6,7 @@ $router = new Core\Router();
 
 $router->get('/', 'controllers/home.php');
 $router->get('/inventory', 'controllers/inventory.php');
+$router->get('/sales-history', 'controllers/salesHistory.php');
 $router->get('/intake', 'controllers/intake.php');
 $router->post('/intake', 'controllers/intake.php');
 

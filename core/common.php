@@ -72,13 +72,10 @@ class Common {
     public static function admin_dashboard_data(Database $db): array
     {
         $users = $db->get_all_users() ?? [];
-        $devices = $db->get_all_devices() ?? [];
-        $soldDevices = array_values(array_filter($devices, fn($d) => $d->status === 'sold')); // Filter out unsold devices and return an integer-keyed array
         $adminCount = count(array_filter($users, fn($u) => $u->role === \Models\UserRole::Admin));
 
         return [
             'users' => $users,
-            'soldDevices' => $soldDevices,
             'adminCount' => $adminCount,
         ];
     }

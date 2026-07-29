@@ -7,6 +7,7 @@ namespace Core;
 
 use Models\User;
 use Models\Device;
+use Models\Sale;
 use PDO;
 use Models\UserRole;
 
@@ -126,6 +127,7 @@ class Database {
     // --- Device ---
     private const DEVICE_REPORT_SELECT = "
         SELECT
+            s.id AS sale_id,
             d.serial_number,
             d.imei,
             d.product_type,
@@ -141,7 +143,7 @@ class Database {
             i.grade, i.condition_notes, i.repairs_needed_done, i.status,
             COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
             i.repair_cost, i.b2b_floor_price, i.b2c_floor_price,
-            i.sale_price, i.sale_channel, i.sold_at, i.buyer_info,
+            s.sale_price, s.sale_channel, s.sold_at, s.buyer_info,
             b.batch_number, b.technician, d.intake_at, b.received_at,
             ds.battery_health_pct, ds.count_pass, ds.count_fail, ds.count_na, ds.count_pending
         FROM device d
@@ -150,6 +152,11 @@ class Database {
         LEFT JOIN inventory_item i ON i.serial_number = d.serial_number
         LEFT JOIN diagnostic_session ds ON ds.id = i.canonical_session_id
         LEFT JOIN supplier_manifest_item smi ON smi.id = d.supplier_manifest_item_id
+        LEFT JOIN sale s ON s.id = (
+            SELECT id FROM sale
+            WHERE sale.serial_number = d.serial_number AND sale.reversed_at IS NULL
+            ORDER BY sold_at DESC LIMIT 1
+        )
         WHERE d.deleted_at IS NULL
     ";
 
@@ -321,27 +328,55 @@ class Database {
         ");
         return $stmt->execute($data);
     }
-        public function complete_sale(array $data): bool {
-            $stmt = $this->pdo->prepare("
-                UPDATE inventory_item
-                SET
-                    status = 'sold',
-                    sale_price = :sale_price,
-                    sale_channel = :sale_channel,
-                    buyer_info = :buyer_info,
-                    sold_at = NOW()
-                WHERE serial_number = :serial_number
-            ");
+    // --- Sale ---
+    public function create_sale(array $data): int {
 
-            return $stmt->execute($data);
-        }
-    public function reverse_sale($serialNumber): bool {
         $stmt = $this->pdo->prepare("
-            UPDATE inventory_item
-            SET status = 'in_stock', sale_price = NULL, sale_channel = NULL, sold_at = NULL, buyer_info = NULL
-            WHERE serial_number = ?
+            INSERT INTO sale (serial_number, technician_id, sale_price, sale_channel, buyer_info, sold_at, notes)
+            VALUES (:serial_number, :technician_id, :sale_price, :sale_channel, :buyer_info, :sold_at, :notes)
         ");
-        return $stmt->execute([$serialNumber]);
+        $stmt->execute($data);
+        return (int) $this->pdo->lastInsertId();
+    }
+
+    public function get_all_sales(): array {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                sale.id, sale.serial_number, sale.sale_price, sale.sale_channel, sale.buyer_info,
+                sale.sold_at, sale.reversed_at, sale.notes, sale.created_at,
+                d.imei, d.product_type, dm.friendly_name,
+                u_tech.username AS technician,
+                u_rev.username AS reversed_by
+            FROM sale
+            JOIN device d            ON d.serial_number = sale.serial_number
+            JOIN device_model dm     ON dm.product_type = d.product_type
+            JOIN user u_tech         ON u_tech.id = sale.technician_id
+            LEFT JOIN user u_rev     ON u_rev.id = sale.reversed_by_id
+            ORDER BY sale.sold_at DESC
+        ");
+        $stmt->execute();
+        return array_map(fn($row) => Sale::from_row($row), $stmt->fetchAll());
+    }
+
+    public function reverse_sale(int $saleId, int $reversedByUserId): bool {
+        $stmt = $this->pdo->prepare("SELECT serial_number FROM sale WHERE id = ? AND reversed_at IS NULL");
+        $stmt->execute([$saleId]);
+        $row = $stmt->fetch();
+        if (!$row) return false;
+
+        $update = $this->pdo->prepare("UPDATE sale SET reversed_at = NOW(), reversed_by_id = ? WHERE id = ?");
+        $update->execute([$reversedByUserId, $saleId]);
+
+        $inventory = $this->pdo->prepare("UPDATE inventory_item SET status = 'in_stock' WHERE serial_number = ?");
+        $inventory->execute([$row['serial_number']]);
+
+        return true;
+    }
+
+    public function user_has_sale_records($userId): bool {
+        $stmt = $this->pdo->prepare("SELECT 1 FROM sale WHERE technician_id = ? OR reversed_by_id = ? LIMIT 1");
+        $stmt->execute([$userId, $userId]);
+        return (bool) $stmt->fetch();
     }
 
     public function get_canonical_test_results($serialNumber): array {

@@ -30,12 +30,15 @@ function handle_device_sale(Core\Database $db, Models\Device $device): void {
         return;
     }
 
-    $db->complete_sale([
-        'serial_number' => $device->serialNumber,
-        'sale_price' => (float)$values['sale_price'],
-        'sale_channel' => $values['sale_channel'],
-        'buyer_info' => trim($values['buyer_info'] ?? '')
-    ]);
+    $db->create_sale([
+    'serial_number' => $device->serialNumber,
+    'technician_id' => $user->id,
+    'sale_price' => (float)$values['sale_price'],
+    'sale_channel' => $values['sale_channel'],
+    'buyer_info' => trim($values['buyer_info'] ?? ''),
+    'sold_at' => date('Y-m-d H:i:s'),
+    'notes' => null
+]);
 
     header('Location: /device?serial=' . urlencode($device->serialNumber));
     exit;
