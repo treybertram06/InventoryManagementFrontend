@@ -14,8 +14,15 @@ $router->get('/device-test', 'controllers/deviceTest.php');
 $router->post('/device-test', 'controllers/deviceTest.php');
 
 $router->get('/device', 'controllers/deviceView.php');
+
 $router->get('/device-edit', 'controllers/deviceEdit.php');
 $router->post('/device-edit', 'controllers/deviceEdit.php');
+
+$router->get('/device-sale', 'controllers/deviceSale.php');
+$router->post('/device-sale', 'controllers/deviceSale.php');
+
+$router->post('/device-unsell', 'controllers/deviceUnsell.php');
+
 $router->post('/device-delete', 'controllers/deviceDelete.php');
 
 $router->get('/admin', 'controllers/admin/admin.php');
