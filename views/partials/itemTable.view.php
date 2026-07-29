@@ -22,6 +22,14 @@ function nearest_pow_of_two($number) {
 
 $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white';
 
+$models = array_values(array_unique(array_map(fn($d) => $d->friendlyName, $devices)));
+sort($models);
+
+$storages = array_values(array_unique(array_map(fn($d) => (int)nearest_pow_of_two($d->storageGb), $devices)));
+sort($storages, SORT_NUMERIC);
+
+$batteryHealthThresholds = [90, 80, 70, 60, 50];
+
 global $db;
 $currentUser = Core\Common::current_user($db);
 $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
@@ -48,6 +56,24 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             <option value="">All Grades</option>
             <?php foreach ($grades as $grade): ?>
                 <option value="<?= htmlspecialchars($grade) ?>"><?= htmlspecialchars($grade) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select id="inventory-table-model" class="<?= $selectClasses ?>">
+            <option value="">All Models</option>
+            <?php foreach ($models as $model): ?>
+                <option value="<?= htmlspecialchars($model) ?>"><?= htmlspecialchars($model) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select id="inventory-table-storage" class="<?= $selectClasses ?>">
+            <option value="">All Storage</option>
+            <?php foreach ($storages as $storage): ?>
+                <option value="<?= htmlspecialchars($storage) ?>"><?= htmlspecialchars($storage) ?>gb</option>
+            <?php endforeach; ?>
+        </select>
+        <select id="inventory-table-battery" class="<?= $selectClasses ?>">
+            <option value="">Any Battery Health</option>
+            <?php foreach ($batteryHealthThresholds as $threshold): ?>
+                <option value="<?= $threshold ?>"><?= $threshold ?>%+</option>
             <?php endforeach; ?>
         </select>
     </div>
@@ -93,6 +119,9 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                     data-name="<?= htmlspecialchars(strtolower($device->friendlyName . ' ' . $device->serialNumber . ' ' . $device->imei)) ?>"
                     data-grade="<?= htmlspecialchars($device->grade) ?>"
                     data-status="<?= htmlspecialchars($device->status) ?>"
+                    data-model="<?= htmlspecialchars($device->friendlyName) ?>"
+                    data-storage="<?= htmlspecialchars((int)nearest_pow_of_two($device->storageGb)) ?>"
+                    data-battery="<?= htmlspecialchars((int)$device->batteryHealthPct) ?>"
                 >
                     <td class="px-4 py-3 text-sm font-medium whitespace-nowrap text-text dark:text-white"><?= htmlspecialchars($device->friendlyName) ?></td>
                     <?php $gradeRank = array_search($device->grade, $grades); // Has to be sorted manually because theres no implicit value within the grading system
@@ -144,16 +173,16 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                             class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
                                 Edit
                             </a>
+                        <?php endif; ?>
 
-                            <?php if ($device->status !== 'sold'): ?>
-
+                        <?php if ($device->status !== 'sold'): ?>
                             <a href="/device-sale?serial=<?= urlencode($device->serialNumber) ?>"
                             class="mr-3 font-medium text-green-600 hover:underline dark:text-green-400">
                                 Sell
                             </a>
-
                         <?php endif; ?>
 
+                        <?php if ($isAdmin): ?>
                             <form method="POST" action="/device-delete" class="inline" onsubmit="return confirm('Delete this device? This cannot be easily undone.');">
                                 <input type="hidden" name="serial_number" value="<?= htmlspecialchars($device->serialNumber) ?>">
                                 <button type="submit" class="font-medium text-red-600 hover:underline dark:text-red-400">
@@ -180,17 +209,26 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         // Search
         const search = document.getElementById('inventory-table-search');
         const gradeFilter = document.getElementById('inventory-table-grade');
+        const modelFilter = document.getElementById('inventory-table-model');
+        const storageFilter = document.getElementById('inventory-table-storage');
+        const batteryFilter = document.getElementById('inventory-table-battery');
         const emptyState = document.getElementById('inventory-table-empty');
 
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
             const grade = gradeFilter.value;
+            const model = modelFilter.value;
+            const storage = storageFilter.value;
+            const battery = parseInt(batteryFilter.value, 10);
             let visibleCount = 0;
 
             for (const row of rows) {
                 const matchesQuery = !query || row.dataset.name.includes(query);
                 const matchesGrade = !grade || row.dataset.grade === grade;
-                const visible = matchesQuery && matchesGrade;
+                const matchesModel = !model || row.dataset.model === model;
+                const matchesStorage = !storage || row.dataset.storage === storage;
+                const matchesBattery = isNaN(battery) || parseInt(row.dataset.battery, 10) >= battery;
+                const visible = matchesQuery && matchesGrade && matchesModel && matchesStorage && matchesBattery;
 
                 row.classList.toggle('hidden', !visible);
                 if (visible) visibleCount++;
@@ -201,6 +239,9 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
         search.addEventListener('input', applyFilters);
         gradeFilter.addEventListener('change', applyFilters);
+        modelFilter.addEventListener('change', applyFilters);
+        storageFilter.addEventListener('change', applyFilters);
+        batteryFilter.addEventListener('change', applyFilters);
 
         // Sorting
         const tbody = container.querySelector('tbody');

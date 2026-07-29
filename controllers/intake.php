@@ -1,5 +1,7 @@
 <?php
 
+Core\Common::require_login($db);
+
 const GRADES = ['A', 'B', 'C', 'D', 'Parts', 'Scrap'];
 
 function blank($value): bool {

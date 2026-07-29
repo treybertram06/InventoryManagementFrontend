@@ -1,6 +1,6 @@
 <?php
 /**
- * @var Models\Device $device
+ * @var Models\Sale $sale
  * @var array $errors
  * @var array $values
  */
@@ -17,9 +17,9 @@ $selectClasses = $inputClasses;
 $textareaClasses = $inputClasses . ' resize-y';
 $labelClasses = 'mb-1.5 block text-sm font-medium text-text dark:text-white';
 
-global $db;
-$currentUser = Core\Common::current_user($db);
-$isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
+$selectedChannel = $values['sale_channel'] ?? $sale->saleChannel;
+$soldAtValue = $values['sold_at'] ?? $sale->soldAt->format('Y-m-d\TH:i');
+$channels = ['In Store', 'eBay', 'Facebook Marketplace', 'Wholesale'];
 ?>
 
 <section class="flex min-h-[calc(100vh-4rem)] items-center justify-center p-8">
@@ -27,20 +27,17 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
     <div class="w-full max-w-3xl rounded-md border border-text-muted/20 bg-surface p-8 shadow-sm dark:bg-surface-dark">
 
         <div class="mb-4">
-            <a href="/device?serial=<?= urlencode($device->serialNumber) ?>"
-               class="text-sm font-medium text-primary hover:underline dark:text-primary-light">
-                &larr; Back to Device
+            <a href="/sales-history" class="text-sm font-medium text-primary hover:underline dark:text-primary-light">
+                &larr; Back to Sales History
             </a>
         </div>
 
-        <h1 class="text-2xl font-semibold text-text dark:text-white">
-            Process Sale
-        </h1>
+        <h1 class="text-2xl font-semibold text-text dark:text-white">Edit Sale</h1>
 
         <p class="mt-2 text-sm text-text-muted dark:text-white/70">
-            <?= htmlspecialchars($device->friendlyName) ?>
+            <?= htmlspecialchars($sale->friendlyName) ?>
             &middot;
-            Serial <?= htmlspecialchars($device->serialNumber) ?>
+            Serial <?= htmlspecialchars($sale->serialNumber) ?>
         </p>
 
         <?php if (!empty($errors)): ?>
@@ -53,12 +50,9 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/device-sale" class="mt-6 space-y-4">
+        <form method="POST" action="/admin-sale-edit" class="mt-6 space-y-4">
 
-            <input
-                type="hidden"
-                name="serial_number"
-                value="<?= htmlspecialchars($device->serialNumber) ?>">
+            <input type="hidden" name="id" value="<?= $sale->id ?>">
 
             <div class="grid grid-cols-1 gap-4">
 
@@ -73,7 +67,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                         step="0.01"
                         min="0.01"
                         name="sale_price"
-                        value="<?= old($values, 'sale_price') ?>"
+                        value="<?= old($values, 'sale_price', (string)$sale->salePrice) ?>"
                         class="<?= $inputClasses ?>"
                         required>
                 </div>
@@ -91,25 +85,11 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
                         <option value="">Select Sale Channel</option>
 
-                        <option value="In Store"
-                            <?= old($values, 'sale_channel') === 'In Store' ? 'selected' : '' ?>>
-                            In Store
-                        </option>
-
-                        <option value="eBay"
-                            <?= old($values, 'sale_channel') === 'eBay' ? 'selected' : '' ?>>
-                            eBay
-                        </option>
-
-                        <option value="Facebook Marketplace"
-                            <?= old($values, 'sale_channel') === 'Facebook Marketplace' ? 'selected' : '' ?>>
-                            Facebook Marketplace
-                        </option>
-
-                        <option value="Wholesale"
-                            <?= old($values, 'sale_channel') === 'Wholesale' ? 'selected' : '' ?>>
-                            Wholesale
-                        </option>
+                        <?php foreach ($channels as $channel): ?>
+                            <option value="<?= htmlspecialchars($channel) ?>" <?= $selectedChannel === $channel ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($channel) ?>
+                            </option>
+                        <?php endforeach; ?>
 
                     </select>
                 </div>
@@ -123,14 +103,9 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                         id="buyer-info"
                         name="buyer_info"
                         rows="4"
-                        class="<?= $textareaClasses ?>"><?= old($values, 'buyer_info') ?></textarea>
-
-                    <p class="mt-1 text-xs text-text-muted dark:text-white/50">
-                        Enter the customer's name, company, invoice number, or any other relevant sale information.
-                    </p>
+                        class="<?= $textareaClasses ?>"><?= old($values, 'buyer_info', (string)$sale->buyerInfo) ?></textarea>
                 </div>
 
-                <?php if ($isAdmin): ?>
                 <div>
                     <label for="sold-at" class="<?= $labelClasses ?>">
                         Sale Date &amp; Time
@@ -141,30 +116,29 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                         type="datetime-local"
                         name="sold_at"
                         max="<?= date('Y-m-d\TH:i') ?>"
-                        value="<?= old($values, 'sold_at') ?>"
-                        class="<?= $inputClasses ?>">
-
-                    <p class="mt-1 text-xs text-text-muted dark:text-white/50">
-                        Leave blank to record the sale as happening now. Set this to backdate the sale to correct a missing entry.
-                    </p>
+                        value="<?= htmlspecialchars($soldAtValue) ?>"
+                        class="<?= $inputClasses ?>"
+                        required>
                 </div>
-                <?php endif; ?>
 
-            </div>
+                <div>
+                    <label for="notes" class="<?= $labelClasses ?>">
+                        Admin Notes
+                    </label>
 
-            <hr class="border-text-muted/20">
+                    <textarea
+                        id="notes"
+                        name="notes"
+                        rows="3"
+                        class="<?= $textareaClasses ?>"><?= old($values, 'notes', (string)$sale->notes) ?></textarea>
+                </div>
 
-            <div class="rounded-md border border-yellow-500/30 bg-yellow-500/10 p-4">
-                <p class="text-sm text-yellow-700 dark:text-yellow-300">
-                    Completing this sale will mark the device as <strong>Sold</strong>,
-                    save the sale details, and remove it from the active inventory list.
-                </p>
             </div>
 
             <button
                 type="submit"
                 class="w-full rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-white transition hover:bg-primary-hover sm:w-auto">
-                Complete Sale
+                Save Changes
             </button>
 
         </form>

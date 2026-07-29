@@ -395,6 +395,45 @@ class Database {
         return array_map(fn($row) => Sale::from_row($row), $stmt->fetchAll());
     }
 
+    public function get_sale_by_id(int $saleId): ?Sale {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                sale.id, sale.serial_number, sale.sale_price, sale.sale_channel, sale.buyer_info,
+                sale.sold_at, sale.reversed_at, sale.notes, sale.created_at,
+                d.imei, d.product_type, dm.friendly_name,
+                u_tech.username AS technician,
+                u_rev.username AS reversed_by,
+                COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
+                i.repair_cost,
+                (i.serial_number IS NOT NULL) AS has_inventory_row
+            FROM sale
+            JOIN device d            ON d.serial_number = sale.serial_number
+            JOIN device_model dm     ON dm.product_type = d.product_type
+            JOIN user u_tech         ON u_tech.id = sale.technician_id
+            LEFT JOIN user u_rev     ON u_rev.id = sale.reversed_by_id
+            LEFT JOIN inventory_item i           ON i.serial_number = sale.serial_number
+            LEFT JOIN supplier_manifest_item smi ON smi.id = d.supplier_manifest_item_id
+            WHERE sale.id = ?
+        ");
+        $stmt->execute([$saleId]);
+        $row = $stmt->fetch();
+        return $row ? Sale::from_row($row) : null;
+    }
+
+    public function update_sale(array $data): bool {
+        $stmt = $this->pdo->prepare("
+            UPDATE sale
+            SET
+                sale_price = :sale_price,
+                sale_channel = :sale_channel,
+                buyer_info = :buyer_info,
+                sold_at = :sold_at,
+                notes = :notes
+            WHERE id = :id
+        ");
+        return $stmt->execute($data);
+    }
+
     public function reverse_sale(int $saleId, int $reversedByUserId): bool {
         $stmt = $this->pdo->prepare("SELECT serial_number FROM sale WHERE id = ? AND reversed_at IS NULL");
         $stmt->execute([$saleId]);

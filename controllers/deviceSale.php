@@ -8,6 +8,7 @@ function handle_device_sale(Core\Database $db, Models\Device $device, Models\Use
 
     $values = $_POST;
     $errors = [];
+    $isAdmin = $user->role === Models\UserRole::Admin;
 
     if (blank($values['sale_price'] ?? null)) {
         $errors[] = "Sale price is required.";
@@ -17,6 +18,20 @@ function handle_device_sale(Core\Database $db, Models\Device $device, Models\Use
 
     if (blank($values['sale_channel'] ?? null)) {
         $errors[] = "Please select a sale channel.";
+    }
+
+    $soldAt = date('Y-m-d H:i:s');
+
+    // Only admins may backdate a sale; a non-admin submitting this field is ignored rather than trusted.
+    if ($isAdmin && !blank($values['sold_at'] ?? null)) {
+        $parsed = DateTime::createFromFormat('Y-m-d\TH:i', $values['sold_at']);
+        if (!$parsed) {
+            $errors[] = "Please enter a valid sale date.";
+        } elseif ($parsed > new DateTime()) {
+            $errors[] = "Sale date cannot be in the future.";
+        } else {
+            $soldAt = $parsed->format('Y-m-d H:i:s');
+        }
     }
 
     if (!empty($errors)) {
@@ -36,7 +51,7 @@ function handle_device_sale(Core\Database $db, Models\Device $device, Models\Use
     'sale_price' => (float)$values['sale_price'],
     'sale_channel' => $values['sale_channel'],
     'buyer_info' => trim($values['buyer_info'] ?? ''),
-    'sold_at' => date('Y-m-d H:i:s'),
+    'sold_at' => $soldAt,
     'notes' => null
 ]);
 
@@ -44,7 +59,7 @@ function handle_device_sale(Core\Database $db, Models\Device $device, Models\Use
     exit;
 }
 
-$user = Core\Common::require_admin($db);
+$user = Core\Common::require_login($db);
 
 $serial = trim((string)($_GET['serial'] ?? $_POST['serial_number'] ?? ''));
 

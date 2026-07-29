@@ -103,6 +103,11 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
                         </a>
 
                         <?php if ($isAdmin && !$sale->is_reversed()): ?>
+                            <a href="/admin-sale-edit?id=<?= $sale->id ?>"
+                               class="mr-3 font-medium text-primary hover:underline dark:text-primary-light">
+                                Edit
+                            </a>
+
                             <form method="POST" action="/admin-sale-reverse" class="inline" onsubmit="return confirm('Reverse this sale? The item will return to in-stock.');">
                                 <input type="hidden" name="sale_id" value="<?= $sale->id ?>">
                                 <button type="submit" class="font-medium text-red-600 hover:underline dark:text-red-400">
