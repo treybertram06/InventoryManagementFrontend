@@ -374,12 +374,21 @@ class Database {
                 sale.sold_at, sale.reversed_at, sale.notes, sale.created_at,
                 d.imei, d.product_type, dm.friendly_name,
                 u_tech.username AS technician,
-                u_rev.username AS reversed_by
+                u_rev.username AS reversed_by,
+                -- The supplier's revised price if testing produced one, otherwise their asking price.
+                COALESCE(smi.revision_price, smi.supplier_value) AS cost_paid,
+                i.repair_cost,
+                -- Separates a repair cost that is genuinely 0.00 from one unknown for want of an inventory row.
+                (i.serial_number IS NOT NULL) AS has_inventory_row
+            -- No d.deleted_at IS NULL filter, unlike DEVICE_REPORT_SELECT: /sales-history is an
+            -- audit view, and only reversal un-counts a sale. See Core\Common::reportable_sales.
             FROM sale
             JOIN device d            ON d.serial_number = sale.serial_number
             JOIN device_model dm     ON dm.product_type = d.product_type
             JOIN user u_tech         ON u_tech.id = sale.technician_id
             LEFT JOIN user u_rev     ON u_rev.id = sale.reversed_by_id
+            LEFT JOIN inventory_item i           ON i.serial_number = sale.serial_number
+            LEFT JOIN supplier_manifest_item smi ON smi.id = d.supplier_manifest_item_id
             ORDER BY sale.sold_at DESC
         ");
         $stmt->execute();

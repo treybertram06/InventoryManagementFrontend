@@ -22,21 +22,22 @@ usort($recentIntakes, fn($a, $b) => $b->intakeAt <=> $a->intakeAt);
 $recentIntakes = array_slice($recentIntakes, 0, 5);
 $needsAttention = array_slice($needsAttention, 0, 5);
 
-$soldDevices = array_filter($devices, fn($d) => $d->status === 'sold' && $d->soldAt !== null);
+// From the sale table, not $devices: a device row only carries its latest non-reversed sale.
+$stats = Core\Common::sales_statistics(Core\Common::reportable_sales($db->get_all_sales()));
 
 $currentMonth = (new DateTime())->format('Y-m');
-$soldThisMonth = array_filter($soldDevices, fn($d) => $d->soldAt->format('Y-m') === $currentMonth);
+$salesThisMonth = $stats['byMonth'][$currentMonth]['units'] ?? 0;
+$revenueThisMonth = $stats['byMonth'][$currentMonth]['revenue'] ?? 0;
 
-$salesThisMonth = count($soldThisMonth);
-$revenueThisMonth = array_sum(array_map(fn($d) => $d->salePrice ?? 0, $soldThisMonth));
-
-$modelSaleCounts = [];
-foreach ($soldDevices as $device) {
-    $modelSaleCounts[$device->friendlyName] = ($modelSaleCounts[$device->friendlyName] ?? 0) + 1;
+// byModel is ordered by revenue, but this card shows most units - so max on 'units', not first.
+$topSellingModel = null;
+$topSellingModelCount = 0;
+foreach ($stats['byModel'] as $model => $row) {
+    if ($row['units'] > $topSellingModelCount) {
+        $topSellingModel = $model;
+        $topSellingModelCount = $row['units'];
+    }
 }
-arsort($modelSaleCounts);
-$topSellingModel = array_key_first($modelSaleCounts);
-$topSellingModelCount = $modelSaleCounts[$topSellingModel] ?? 0;
 
 view('home.view.php', [
     'db' => $db,
