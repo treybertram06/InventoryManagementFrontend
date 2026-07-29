@@ -7,8 +7,9 @@
   - Has a form to input necessary sales info
 - Upgrades to inventory management page
   - More thorough filters
-- Sales history and reporting page
-  - Sales statistics and whatnot
+
+- Admin editing of sales records beyond deletion / reversal
+- Revenue trend reporting - will require lots more test data (ugh)
 
 Done:
 - Admin dashboard
@@ -18,3 +19,5 @@ Done:
 - Home page
   - Update to display real-time data once everything else is done
   - Sale reversal
+- Sales history and reporting page
+  - Sales statistics and whatnot
