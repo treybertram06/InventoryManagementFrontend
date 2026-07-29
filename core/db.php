@@ -329,14 +329,42 @@ class Database {
         return $stmt->execute($data);
     }
     // --- Sale ---
-    public function create_sale(array $data): int {
+   public function create_sale(array $data): int {
 
         $stmt = $this->pdo->prepare("
-            INSERT INTO sale (serial_number, technician_id, sale_price, sale_channel, buyer_info, sold_at, notes)
-            VALUES (:serial_number, :technician_id, :sale_price, :sale_channel, :buyer_info, :sold_at, :notes)
+            INSERT INTO sale (
+                serial_number,
+                technician_id,
+                sale_price,
+                sale_channel,
+                buyer_info,
+                sold_at,
+                notes
+            )
+            VALUES (
+                :serial_number,
+                :technician_id,
+                :sale_price,
+                :sale_channel,
+                :buyer_info,
+                :sold_at,
+                :notes
+            )
         ");
+
         $stmt->execute($data);
-        return (int) $this->pdo->lastInsertId();
+
+        $saleId = (int)$this->pdo->lastInsertId();
+
+        $update = $this->pdo->prepare("
+            UPDATE inventory_item
+            SET status = 'sold'
+            WHERE serial_number = ?
+        ");
+
+        $update->execute([$data['serial_number']]);
+
+        return $saleId;
     }
 
     public function get_all_sales(): array {
