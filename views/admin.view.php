@@ -9,6 +9,7 @@
  * @var Models\User $currentUser
  * @var Models\User[] $users
  * @var int $adminCount
+ * @var array $stats
  */
 ?>
 
@@ -22,6 +23,13 @@
         <a href="/sales-history" class="rounded-md bg-surface-muted px-5 py-2.5 text-sm font-medium text-text transition hover:bg-surface-muted/75 dark:bg-surface-muted-dark dark:text-white dark:hover:text-white/75">
             Sales History
         </a>
+    </div>
+
+    <?php // Summary figures only. The full, filterable list of individual sales lives on
+          // /sales-history, which the button above links to. ?>
+    <div class="mb-8">
+        <h2 class="mb-4 text-lg font-semibold text-text dark:text-white">Sales Summary</h2>
+        <?php require "partials/salesStats.view.php"; ?>
     </div>
 
     <div>
