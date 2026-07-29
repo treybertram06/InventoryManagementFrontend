@@ -10,7 +10,7 @@ if ($saleId <= 0 || $serial === '') {
     exit;
 }
 
-$db->reverse_sale($saleId, $user->id);
+$db->reverse_sale($saleId, $user->ID);
 
 header('Location: /device?serial=' . urlencode($serial));
 exit;

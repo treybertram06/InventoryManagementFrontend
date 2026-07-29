@@ -4,7 +4,7 @@ function blank($value): bool {
     return trim((string)($value ?? '')) === '';
 }
 
-function handle_device_sale(Core\Database $db, Models\Device $device): void {
+function handle_device_sale(Core\Database $db, Models\Device $device, Models\User $user): void {
 
     $values = $_POST;
     $errors = [];
@@ -32,7 +32,7 @@ function handle_device_sale(Core\Database $db, Models\Device $device): void {
 
     $db->create_sale([
     'serial_number' => $device->serialNumber,
-    'technician_id' => $user->id,
+    'technician_id' => $user->ID,
     'sale_price' => (float)$values['sale_price'],
     'sale_channel' => $values['sale_channel'],
     'buyer_info' => trim($values['buyer_info'] ?? ''),
@@ -73,6 +73,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 } else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    handle_device_sale($db, $device);
+    handle_device_sale($db, $device, $user);
 
 }

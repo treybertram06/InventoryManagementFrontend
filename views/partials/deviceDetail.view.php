@@ -81,6 +81,11 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
                         <input
                             type="hidden"
+                            name="sale_id"
+                            value="<?= $device->saleId ?>">
+
+                        <input
+                            type="hidden"
                             name="serial_number"
                             value="<?= htmlspecialchars($device->serialNumber) ?>">
 
