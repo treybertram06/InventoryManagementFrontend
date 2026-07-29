@@ -1,4 +1,12 @@
 core/config.php
 .DS_Store
 .idea/
-/.claude/
+.claude/
+CLAUDE.md
+
+# Editors / OS / logs
+.vscode/
+*.swp
+*~
+Thumbs.db
+*.log
