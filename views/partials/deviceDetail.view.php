@@ -123,6 +123,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         <div class="<?= $cardClasses ?>">
             <h2 class="mb-4 text-sm font-semibold text-text dark:text-white">Specs</h2>
             <div class="grid grid-cols-2 gap-4">
+                <?php field('Brand', fmt($device->brand), $labelClasses, $valueClasses); ?>
                 <?php field('Model Number', fmt($device->modelNumber), $labelClasses, $valueClasses); ?>
                 <?php field('Color', fmt($device->color), $labelClasses, $valueClasses); ?>
                 <?php field('Region', fmt($device->regionCode), $labelClasses, $valueClasses); ?>

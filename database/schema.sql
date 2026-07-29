@@ -4,6 +4,7 @@ USE phone_inventory;
 
 CREATE TABLE IF NOT EXISTS device_model ( -- Lazily populated when a new device is identified through testing
     product_type        VARCHAR(20)     NOT NULL, -- Real device identifier, e.g. iPhone17,2
+    brand               VARCHAR(32)     NOT NULL, -- Apple, Samsung, etc. Belongs to the model, not the individual unit
     friendly_name       VARCHAR(64)     NOT NULL, -- Human-readable name, e.g. iPhone 16 Pro Max
     has_home_button     BOOLEAN         NOT NULL DEFAULT FALSE,
     has_face_id         BOOLEAN         NOT NULL DEFAULT TRUE, -- Hardware-presence flag, could be determined from

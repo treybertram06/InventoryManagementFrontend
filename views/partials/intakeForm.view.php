@@ -21,6 +21,7 @@ $triState = [
 ];
 
 $grades = ['A', 'B', 'C', 'D', 'Parts', 'Scrap'];
+$brands = ['Apple', 'Samsung', 'Google', 'OnePlus', 'Motorola', 'Other'];
 
 $sections = [
     'identification' => [
@@ -28,6 +29,7 @@ $sections = [
         'fields' => [
             ['name' => 'serial_number', 'label' => 'Serial Number', 'required' => true, 'placeholder' => 'C02XXXXXXXXX or a Samsung/Google serial'],
             ['name' => 'product_type', 'label' => 'Product Type / Model Identifier', 'required' => true, 'placeholder' => 'iPhone17,2 or SM-S918B'],
+            ['name' => 'brand', 'label' => 'Brand', 'type' => 'select', 'options' => $brands, 'required' => true, 'hint' => "Only used the first time this Product Type is checked in — ignored afterwards."],
             ['name' => 'friendly_name', 'label' => 'Product Name', 'required' => true, 'placeholder' => 'Galaxy S23 Ultra', 'hint' => "Only used the first time this Product Type is checked in — ignored afterwards."],
             ['name' => 'model_number', 'label' => 'Model Number', 'placeholder' => 'MQ9T3LL/A or SM-S918BZKEXSA'],
             ['name' => 'color', 'label' => 'Colour', 'placeholder' => 'Phantom Black'],
