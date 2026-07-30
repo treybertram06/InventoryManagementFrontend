@@ -131,6 +131,7 @@ class Database {
             d.serial_number,
             d.imei,
             d.product_type,
+            dm.brand,
             dm.friendly_name,
             d.model_number,
             d.color,
@@ -190,13 +191,13 @@ class Database {
         return (bool) $stmt->fetch();
     }
 
-    public function create_device_model($productType, $friendlyName): bool {
-        $stmt = $this->pdo->prepare("INSERT INTO device_model (product_type, friendly_name) VALUES (?, ?)");
-        return $stmt->execute([$productType, $friendlyName]);
+    public function create_device_model($productType, $brand, $friendlyName): bool {
+        $stmt = $this->pdo->prepare("INSERT INTO device_model (product_type, brand, friendly_name) VALUES (?, ?, ?)");
+        return $stmt->execute([$productType, $brand, $friendlyName]);
     }
 
     public function get_all_device_models(): array {
-        $stmt = $this->pdo->prepare("SELECT product_type, friendly_name FROM device_model ORDER BY friendly_name");
+        $stmt = $this->pdo->prepare("SELECT product_type, brand, friendly_name FROM device_model ORDER BY brand, friendly_name");
         $stmt->execute();
         return $stmt->fetchAll();
     }

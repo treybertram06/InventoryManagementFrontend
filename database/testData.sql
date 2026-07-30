@@ -19,22 +19,22 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- device_model: device catalog, lazily populated in real usage
 -- ============================================================================
 INSERT INTO device_model
-    (product_type, friendly_name, has_home_button, has_face_id, has_action_button, has_camera_button, has_telephoto, has_lidar)
+    (product_type, brand, friendly_name, has_home_button, has_face_id, has_action_button, has_camera_button, has_telephoto, has_lidar)
 VALUES
-    ('iPhone13,1', 'iPhone 12 mini',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone13,2', 'iPhone 12',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone13,3', 'iPhone 12 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone13,4', 'iPhone 12 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone14,2', 'iPhone 13 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone14,3', 'iPhone 13 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone14,7', 'iPhone 14',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone14,8', 'iPhone 14 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone15,2', 'iPhone 14 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone15,3', 'iPhone 14 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
-    ('iPhone15,4', 'iPhone 15',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone15,5', 'iPhone 15 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
-    ('iPhone16,1', 'iPhone 15 Pro',      FALSE, TRUE, TRUE,  FALSE, TRUE,  TRUE),
-    ('iPhone17,1', 'iPhone 16 Pro',      FALSE, TRUE, TRUE,  TRUE,  TRUE,  TRUE);
+    ('iPhone13,1', 'Apple', 'iPhone 12 mini',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone13,2', 'Apple', 'iPhone 12',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone13,3', 'Apple', 'iPhone 12 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone13,4', 'Apple', 'iPhone 12 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,2', 'Apple', 'iPhone 13 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,3', 'Apple', 'iPhone 13 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone14,7', 'Apple', 'iPhone 14',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone14,8', 'Apple', 'iPhone 14 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone15,2', 'Apple', 'iPhone 14 Pro',      FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone15,3', 'Apple', 'iPhone 14 Pro Max',  FALSE, TRUE, FALSE, FALSE, TRUE,  TRUE),
+    ('iPhone15,4', 'Apple', 'iPhone 15',          FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone15,5', 'Apple', 'iPhone 15 Plus',     FALSE, TRUE, FALSE, FALSE, FALSE, FALSE),
+    ('iPhone16,1', 'Apple', 'iPhone 15 Pro',      FALSE, TRUE, TRUE,  FALSE, TRUE,  TRUE),
+    ('iPhone17,1', 'Apple', 'iPhone 16 Pro',      FALSE, TRUE, TRUE,  TRUE,  TRUE,  TRUE);
 
 -- ============================================================================
 -- user: staff accounts

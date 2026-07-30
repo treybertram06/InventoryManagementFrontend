@@ -8,6 +8,7 @@ class Device {
     public string $serialNumber;
     public ?string $imei;
     public string $productType;
+    public string $brand;
     public string $friendlyName;
     public ?string $modelNumber;
     public ?string $color;
@@ -53,6 +54,7 @@ class Device {
         $device->serialNumber = $row['serial_number'];
         $device->imei = $row['imei'];
         $device->productType = $row['product_type'];
+        $device->brand = $row['brand'];
         $device->friendlyName = $row['friendly_name'];
         $device->modelNumber = $row['model_number'];
         $device->color = $row['color'];

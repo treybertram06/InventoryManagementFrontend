@@ -3,6 +3,7 @@
 Core\Common::require_login($db);
 
 const GRADES = ['A', 'B', 'C', 'D', 'Parts', 'Scrap'];
+const BRANDS = ['Apple', 'Samsung', 'Google', 'OnePlus', 'Motorola', 'Other'];
 
 function blank($value): bool {
     return trim((string)($value ?? '')) === '';
@@ -37,6 +38,12 @@ function handle_intake(Core\Database $db): void {
         if ($isNewProductType && blank($values['friendly_name'] ?? null)) {
             $errors[] = "Product Name is required the first time this Product Type is checked in.";
         }
+        // Brand lives on device_model, so it is only read on the first check-in of a product type - same as Product Name.
+        if ($isNewProductType && blank($values['brand'] ?? null)) {
+            $errors[] = "Brand is required the first time this Product Type is checked in.";
+        } elseif ($isNewProductType && !in_array($values['brand'], BRANDS, true)) {
+            $errors[] = "Please select a valid brand.";
+        }
     }
 
     if (blank($values['batch_number'] ?? null)) {
@@ -59,7 +66,7 @@ function handle_intake(Core\Database $db): void {
     }
 
     if ($isNewProductType) {
-        $db->create_device_model($values['product_type'], $values['friendly_name']);
+        $db->create_device_model($values['product_type'], $values['brand'], $values['friendly_name']);
     }
 
     $batchId = $db->get_batch_id_by_number($values['batch_number']) ?? $db->create_batch($values['batch_number']);

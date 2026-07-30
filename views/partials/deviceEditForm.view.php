@@ -56,7 +56,7 @@ if ($selectedStorage !== '' && !in_array((int)$selectedStorage, $storageSizes, t
                     <select id="edit-product-type" name="product_type" class="<?= $selectClasses ?>">
                         <?php foreach ($models as $model): ?>
                             <option value="<?= htmlspecialchars($model['product_type']) ?>" <?= $selectedProductType === $model['product_type'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($model['friendly_name']) ?> (<?= htmlspecialchars($model['product_type']) ?>)
+                                <?= htmlspecialchars($model['brand']) ?> <?= htmlspecialchars($model['friendly_name']) ?> (<?= htmlspecialchars($model['product_type']) ?>)
                             </option>
                         <?php endforeach; ?>
                     </select>

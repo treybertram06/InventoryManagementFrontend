@@ -22,6 +22,9 @@ function nearest_pow_of_two($number) {
 
 $selectClasses = 'rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white';
 
+$brands = array_values(array_unique(array_map(fn($d) => $d->brand, $devices)));
+sort($brands);
+
 $models = array_values(array_unique(array_map(fn($d) => $d->friendlyName, $devices)));
 sort($models);
 
@@ -39,7 +42,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         <input
             type="search"
             id="inventory-table-search"
-            placeholder="Search by name, serial number or IMEI"
+            placeholder="Search by brand, name, serial number or IMEI"
             class="min-w-56 flex-1 rounded-md border border-text-muted/25 bg-surface px-3 py-2 text-sm text-text placeholder:text-text-muted focus:border-primary focus:outline-none dark:bg-surface-dark dark:text-white"
         />
         <div class="relative w-56">
@@ -56,6 +59,12 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             <option value="">All Grades</option>
             <?php foreach ($grades as $grade): ?>
                 <option value="<?= htmlspecialchars($grade) ?>"><?= htmlspecialchars($grade) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select id="inventory-table-brand" class="<?= $selectClasses ?>">
+            <option value="">All Brands</option>
+            <?php foreach ($brands as $brand): ?>
+                <option value="<?= htmlspecialchars($brand) ?>"><?= htmlspecialchars($brand) ?></option>
             <?php endforeach; ?>
         </select>
         <select id="inventory-table-model" class="<?= $selectClasses ?>">
@@ -83,6 +92,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             <tr>
                 <?php
                 $columns = [
+                    ['label' => 'Brand',              'type' => 'text'],
                     ['label' => 'Product Name',       'type' => 'text'],
                     ['label' => 'Grade',              'type' => 'number'],
                     ['label' => 'Colour',             'type' => 'number'],
@@ -116,13 +126,15 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             <?php foreach ($devices as $device): ?>
                 <tr
                     class="hover:bg-surface-muted/50 dark:hover:bg-surface-muted-dark/50"
-                    data-name="<?= htmlspecialchars(strtolower($device->friendlyName . ' ' . $device->serialNumber . ' ' . $device->imei)) ?>"
+                    data-name="<?= htmlspecialchars(strtolower($device->brand . ' ' . $device->friendlyName . ' ' . $device->serialNumber . ' ' . $device->imei)) ?>"
                     data-grade="<?= htmlspecialchars($device->grade) ?>"
                     data-status="<?= htmlspecialchars($device->status) ?>"
+                    data-brand="<?= htmlspecialchars($device->brand) ?>"
                     data-model="<?= htmlspecialchars($device->friendlyName) ?>"
                     data-storage="<?= htmlspecialchars((int)nearest_pow_of_two($device->storageGb)) ?>"
                     data-battery="<?= htmlspecialchars((int)$device->batteryHealthPct) ?>"
                 >
+                    <td class="px-4 py-3 text-sm whitespace-nowrap text-text-muted dark:text-white/70"><?= htmlspecialchars($device->brand) ?></td>
                     <td class="px-4 py-3 text-sm font-medium whitespace-nowrap text-text dark:text-white"><?= htmlspecialchars($device->friendlyName) ?></td>
                     <?php $gradeRank = array_search($device->grade, $grades); // Has to be sorted manually because theres no implicit value within the grading system
                     // it would actually work fine with the labels I chose for grades - coincidentally, the grades are alphabetical, including 'Parts' and 'Scrap' - but this is more robust ?>
@@ -209,6 +221,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         // Search
         const search = document.getElementById('inventory-table-search');
         const gradeFilter = document.getElementById('inventory-table-grade');
+        const brandFilter = document.getElementById('inventory-table-brand');
         const modelFilter = document.getElementById('inventory-table-model');
         const storageFilter = document.getElementById('inventory-table-storage');
         const batteryFilter = document.getElementById('inventory-table-battery');
@@ -217,6 +230,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
         function applyFilters() {
             const query = search.value.trim().toLowerCase();
             const grade = gradeFilter.value;
+            const brand = brandFilter.value;
             const model = modelFilter.value;
             const storage = storageFilter.value;
             const battery = parseInt(batteryFilter.value, 10);
@@ -225,10 +239,11 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
             for (const row of rows) {
                 const matchesQuery = !query || row.dataset.name.includes(query);
                 const matchesGrade = !grade || row.dataset.grade === grade;
+                const matchesBrand = !brand || row.dataset.brand === brand;
                 const matchesModel = !model || row.dataset.model === model;
                 const matchesStorage = !storage || row.dataset.storage === storage;
                 const matchesBattery = isNaN(battery) || parseInt(row.dataset.battery, 10) >= battery;
-                const visible = matchesQuery && matchesGrade && matchesModel && matchesStorage && matchesBattery;
+                const visible = matchesQuery && matchesGrade && matchesBrand && matchesModel && matchesStorage && matchesBattery;
 
                 row.classList.toggle('hidden', !visible);
                 if (visible) visibleCount++;
@@ -239,6 +254,7 @@ $isAdmin = $currentUser && $currentUser->role === Models\UserRole::Admin;
 
         search.addEventListener('input', applyFilters);
         gradeFilter.addEventListener('change', applyFilters);
+        brandFilter.addEventListener('change', applyFilters);
         modelFilter.addEventListener('change', applyFilters);
         storageFilter.addEventListener('change', applyFilters);
         batteryFilter.addEventListener('change', applyFilters);
