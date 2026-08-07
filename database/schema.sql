@@ -171,7 +171,7 @@ CREATE TABLE IF NOT EXISTS inventory_item (
 
     status                  ENUM('in_stock','listed','reserved','sold','returned','scrapped')
                                             NOT NULL DEFAULT 'in_stock',
-    listed_aEt               DATETIME,
+    listed_at                DATETIME,
     listing_channel         VARCHAR(64), -- where this item is listed while status = 'listed'/'reserved'; a completed sale's actual channel lives on the `sale` row
     reserved_at             DATETIME,
     reservation_notes       VARCHAR(256), -- notes while status = 'reserved'; completed-sale detail lives in the `sale` table
